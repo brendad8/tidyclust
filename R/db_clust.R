@@ -161,7 +161,7 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 .db_clust_fit_dbscan <- function(x,
                                   radius = NULL,
                                   minpts = NULL) {
-  res <- dbscan::dbscan(x, eps = raidus, minPts = minPts)
+  res <- dbscan::dbscan(x, eps = raidus, minPts = minpts)
   attr(res, "radius") <- radius
   attr(res, "minpts") <- minpts
   attr(res, "training_data") <- x
