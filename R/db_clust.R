@@ -1,4 +1,4 @@
-#' Density-Based Spatial Clustering of Applications with Noise
+#' Density-Based Spatial Clustering of Applications with Noise (DBSCAN)
 #'
 #' @description
 #'
@@ -9,7 +9,7 @@
 #' chosen by setting the model engine. The engine-specific pages for this model
 #' are listed below.
 #'
-#' - \link[=details_hier_clust_stats]{stats}
+#' - \link[=details_db_clust_dbscan]{dbscan}
 #'
 #' @param mode A single character string for the type of model. The only
 #'   possible value for this model is "partition".
@@ -34,7 +34,7 @@
 #' # Show all engines
 #' modelenv::get_from_env("db_clust")
 #'
-#' dbscan()
+#' db_clust()
 #' @export
 db_clust <-
   function(mode = "partition",
