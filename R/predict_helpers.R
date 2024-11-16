@@ -152,3 +152,12 @@ make_predictions <- function(x, prefix, n_clusters) {
 
   pred_clusts
 }
+
+.db_clust_predict_dbscan <- function(object, new_data, prefix = "Cluster_") {
+
+  clusters <- predict(object, newdata = new_data, data = object$training_data)
+  n_clusters <- length(db$cluster %>% unique())
+
+  make_predictions(clusters, prefix, n_clusters)
+}
+
