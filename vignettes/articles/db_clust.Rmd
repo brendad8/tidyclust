@@ -1,0 +1,338 @@
+---
+title: "Density-Based Clustering"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Density-Based Clustering}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Setup
+```{r}
+library(workflows)
+library(parsnip)
+```
+
+```{r}
+library(tidyclust)
+library(tidyverse)
+library(tidymodels)
+set.seed(838383)
+```
+
+
+Load and clean a dataset:
+
+```{r}
+data("penguins", package = "modeldata")
+
+penguins <- penguins %>%
+  select(bill_length_mm, bill_depth_mm) %>%
+  drop_na()
+
+
+# shuffle rows
+penguins <- penguins %>%
+  sample_n(nrow(penguins))
+```
+
+At the end of this vignette, you will find a brief overview of the DBSCAN algorithm.
+
+## A brief introduction to density-based clustering
+
+Density-Based Spatial Clustering of Applications with Noise (DBSCAN) is a method of unsupervised learning that groups observations into clusters based on their density in multidimensional space. Unlike methods such as k-means, DBSCAN does not require specifying the number of clusters beforehand and can identify clusters of arbitrary shapes. Additionally, it can classify points that do not belong to any cluster as noise, allowing for greater flexibility in handling real-world data.
+
+In DBSCAN, observations are considered as locations in multidimensional space. The algorithm works by defining a cluster as a dense region of connected points. During the fitting process, points are classified as core points, border points, or noise based on their proximity to other points (**radius**) and a density threshold (**minpts**).
+
+```{r, include = FALSE}
+penguins_std <- penguins %>%
+  mutate(bill_length_std = scale(bill_length_mm)[,1],
+         bill_depth_std = scale(bill_depth_mm)[,1]) %>%
+  select(bill_length_std, bill_depth_std)
+```
+
+
+```{r, echo = FALSE}
+
+# penguins_std %>%
+  # ggplot() +
+  # geom_point(aes(x = bill_length_std, y = bill_depth_std)) +
+  # theme_minimal() +
+  # coord_fixed()
+
+```
+
+1. For each observation in the data, determine whether each point is a core point. A core points is defined as an observation which has more than the specified **minpts** points (including the point itself) within the specified **radius** around the point.
+
+
+```{r, include = FALSE}
+library(dbscan)
+eps <- 0.35
+minpts <- 10
+dbscan_fit <- dbscan(penguins_std, eps = eps, minPts = minpts)
+
+```
+
+```{r, echo = FALSE}
+library(ggforce)
+penguins_std %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std)) +
+  theme_minimal() +
+  geom_circle(tibble(x = c(-0.79162259), y = c(1.79706436), radius = rep(eps,1)),
+              mapping = aes(x0 = x, y0 = y, r = eps),
+              color = "gray", linewidth = 0.8) +
+  geom_point(tibble(x = c(-0.79162259), y = c(1.79706436)), mapping = aes(x = x, y = y, color = c("1"))) +
+  coord_fixed() +
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("red"))
+```
+
+
+
+```{r, echo = FALSE}
+penguins_new <- penguins_std
+penguins_new$cluster <- factor(dbscan_fit$cluster)
+penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, minPts = minpts)) == 1, "Yes", "No"), levels = c("Yes", "No"))
+
+penguins_new %>%
+  ggplot(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
+  geom_point() +
+  theme_minimal() +
+  coord_fixed() +
+  labs(color = "Is a core point?") + 
+  scale_color_manual(values = c("red", "black")) +
+  theme(legend.position = "none")
+```
+
+2. For each Core point, assign it and all the points within the specified radius around the point ta
+
+```{r, echo = FALSE}
+penguins_new %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
+  theme_minimal() +
+  geom_circle(tibble(x = c(-1.10300165), y = c(0.73366185), radius = rep(eps, 1)),
+              mapping = aes(x0 = x, y0 = y, r = eps),
+              color = "gray", linewidth = 0.8) +
+  geom_point(tibble(x = c(-1.10300165), y = c(0.73366185)), mapping = aes(x = x, y = y, color = c("1"))) +
+  coord_fixed() +
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("red", "black", "#619CFF"))
+```
+
+
+
+```{r, echo = FALSE}
+penguins_new %>%
+  mutate(cp = if_else(sqrt((bill_length_std - -1.10300165)^2 + (bill_depth_std - 0.73366185)^2) <= eps, "1", cp)) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
+  theme_minimal() +
+  geom_circle(tibble(x = c(-1.10300165), y = c(0.73366185), radius = rep(eps, 1)),
+              mapping = aes(x0 = x, y0 = y, r = eps),
+              color = "gray", linewidth = 0.8) +
+  geom_point(tibble(x = c(-1.10300165), y = c(0.73366185)), mapping = aes(x = x, y = y, color = c("1"))) +
+  coord_fixed() +
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("#619CFF", "black", "red"))
+```
+
+
+```{r, echo = FALSE}
+penguins_new %>%
+  mutate(cluster_temp = if_else(cluster == 1, "temp", cp)) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster_temp)) +
+  theme_minimal() +
+  geom_circle(tibble(x = c(-1.25), y = c(-0.32), radius = rep(eps, 1)),
+              mapping = aes(x0 = x, y0 = y, r = eps),
+              color = "gray", linewidth = 0.8) +
+  geom_point(tibble(x = c(-1.25), y = c(-0.32)), mapping = aes(x = x, y = y, color = c("1"))) +
+  coord_fixed() +
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("#619CFF", "black", "#619CFF", "red"))
+```
+
+
+```{r, echo = FALSE}
+penguins_new %>%
+  mutate(cluster_temp = case_when(cluster == 1 ~ "temp",
+                                  sqrt((bill_length_std - 1.2)^2 + (bill_depth_std - 1.05)^2) <= eps ~ "1",
+                                  TRUE ~ cp)) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster_temp)) +
+  theme_minimal() +
+  geom_circle(tibble(x = c(1.2), y = c(1.05), radius = rep(eps, 1)),
+              mapping = aes(x0 = x, y0 = y, r = eps),
+              color = "gray", linewidth = 0.8) +
+  geom_point(tibble(x = c(1.2), y = c(1.05)), mapping = aes(x = x, y = y, color = c("1")), size = 1.8) +
+  coord_fixed() +
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("#00BA38", "black", "#619CFF", "red"))
+```
+
+
+```{r, echo = FALSE}
+penguins_new %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster)) +
+  theme_minimal() +
+  coord_fixed() + 
+  scale_color_manual(values = c("black", "#619CFF", "#F8766D", "#00BA38", "#C77CFF")) +
+  theme(legend.position = "none")
+
+```
+
+
+## db clust specification in {`tidyclust`}
+
+```{r}
+db_clust_spec <- db_clust(radius = 0.35, minpts = 10)
+
+db_clust_spec
+```
+
+There is currently one engine: `dbscan::dbscan` (default) 
+
+## Fitting db_clust models
+
+We fit the model to data in the usual way:
+
+```{r}
+db_clust_fit <- db_clust_spec %>%
+  fit( ~ bill_length_std + bill_depth_std,
+       data = penguins_std
+      )
+
+db_clust_fit %>% 
+  summary()
+```
+
+We can also extract the standard `tidyclust` summary list:
+
+
+```{r}
+# no extract fit summary method for db_clust object yet
+
+# db_clust_summary <- db_clust_fit %>% extract_fit_summary()
+
+# db_clust_summary %>% str()
+```
+
+```{r}
+db_clust_fit %>% extract_cluster_assignment()
+```
+
+
+```{r}
+penguins_new %>%
+  mutate(cluster2 = (db_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster2)) +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = "green", size = 2), data = penguins_new %>% .[144,]) +
+  theme_minimal() +
+  coord_fixed() + 
+  scale_color_manual(values = c("#619CFF", "#F8766D", "#00BA38", "black", "green")) +
+  theme(legend.position = "none")
+```
+
+
+If you have not yet read the `k_means` vignette, we recommend reading that first;
+functions that are used in this vignette are explained in more detail there.
+
+
+## Prediction
+
+<!-- Since unsupervised methods are not designed for prediction, the notion of  -->
+<!-- predicting the cluster assignment is not always obvious. -->
+
+Since $DBSCAN$ algorithm ultimately assigns training observations to the
+clusters based on proximity to core points, it is natural to "predict" that test 
+observations belong to a cluster if they are within $radius$ distance to a core point.
+
+The `predict()` function behaves as expected, producing cluster assignment 
+predictions on new data based on distance to the core points from the fitted model.
+
+
+```{r}
+new_penguin <- tibble(
+  bill_length_std = -1.2454235,
+  bill_depth_std = 0.5012132
+)
+
+db_clust_fit %>%
+  predict(new_penguin)
+```
+
+```{r}
+set.seed(80)
+
+dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
+is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
+pred_data <- penguins_std[is_core,]
+
+pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+```
+
+
+```{r}
+test <- db_clust_fit %>%
+  predict(penguins_std) %>%
+  mutate(.fit_cluster = (db_clust_fit %>% extract_cluster_assignment())$.cluster,
+         .bc = pred,
+         .bc = case_when(.bc == 0 ~ "Outlier",
+                         TRUE ~ paste0("Cluster_", .bc)))
+# %>%
+#   filter(.pred_cluster != .fit_cluster)
+
+# want to assign to closer corepoint
+
+
+which(test$.pred_cluster != test$.bc)
+```
+
+
+```{r, include = FALSE}
+
+dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
+is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
+pred_data <- penguins_std[is_core,]
+
+pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+
+preds <- cbind(
+  db_clust_fit %>% extract_cluster_assignment(),
+  db_clust_fit %>% predict(penguins_std),
+  .pred_clust_adj = paste0("Cluster_", dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps))
+  
+```
+```{r}
+preds %>% filter(.cluster != .pred_cluster)
+```
+
+
+```{r}
+cbind(
+  attr(db_clust_fit$fit, "training_data"),
+  attr(db_clust_fit$fit, "core_points")
+)
+
+dist(db_clust_fit)
+
+
+
+
+new_penguin
+
+
+```
+

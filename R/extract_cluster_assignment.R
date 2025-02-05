@@ -158,51 +158,17 @@ extract_cluster_assignment.hclust <- function(object,
 }
 
 #' @export
-#'
-#' STILL GOTTA DO STUFF HERE
-extract_cluster_assignment.db_clust <- function(object,
-                                              ...,
-                                              call = rlang::caller_env(0)) {
+extract_cluster_assignment.dbscan <- function(object, ...) {
+  clusters <- object$cluster
+  n_clusters <- length(unique(clusters))
+  cluster_assignment_tibble_w_outliers(clusters, n_clusters, ...)
+}
 
-  args <- list(...)
-
-  # if (!is.null(args[["h"]])) {
-  #   rlang::abort(
-  #     paste(
-  #       "Using `h` argument is not supported.",
-  #       "Please use `cut_height` instead."
-  #     ),
-  #     call = call
-  #   )
-  # }
-  #
-  # if (!is.null(args[["k"]])) {
-  #   rlang::abort(
-  #     paste(
-  #       "Using `k` argument is not supported.",
-  #       "Please use `num_clusters` instead."
-  #     ),
-  #     call = call
-  #   )
-  # }
-
-  # if (!("num_clusters" %in% names(args) || "cut_height" %in% names(args))) {
-  #   num_clusters <- attr(object, "num_clusters")
-  #   cut_height <- attr(object, "cut_height")
-  # } else {
-  #   num_clusters <- args[["num_clusters"]]
-  #   cut_height <- args[["cut_height"]]
-  # }
-  #
-  # if (is.null(num_clusters) && is.null(cut_height)) {
-  #   rlang::abort(
-  #     "Please specify either `num_clusters` or `cut_height`.",
-  #     call = call
-  #   )
-  # }
-
-  clusters <- object %$% cluster
-  cluster_assignment_tibble(clusters, length(unique(clusters)), ...)
+#' @export
+extract_cluster_assignment.Mclust <- function(object, ...) {
+  clusters <- object$classification
+  n_clusters <- length(unique(clusters))
+  cluster_assignment_tibble(clusters, n_clusters, ...)
 }
 
 
@@ -216,5 +182,25 @@ cluster_assignment_tibble <- function(clusters,
   names <- paste0(prefix, seq_len(n_clusters))
   res <- names[reorder_clusts][clusters]
 
+  tibble::tibble(.cluster = factor(res))
+}
+
+cluster_assignment_tibble_w_outliers <- function(clusters,
+                                                 n_clusters,
+                                                 ...,
+                                                 prefix = "Cluster_") {
+  reorder_clusts <- order(union(unique(clusters), 0:(n_clusters-1)))
+  names <- paste0(prefix, 0:(n_clusters-1))
+  res <- names[reorder_clusts][clusters+1]
+  res[res == paste0(prefix, "0")] <- "Outlier"
+  # zero_count <- 0
+  # res <- sapply(res, function(x) {
+  #   if (x == "Cluster_0") {
+  #     zero_count <<- zero_count + 1
+  #     paste0("Cluster_0_", zero_count)
+  #   } else {
+  #     x
+  #   }
+  # })
   tibble::tibble(.cluster = factor(res))
 }

@@ -1,0 +1,130 @@
+---
+title: "Gaussian Model Clustering"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gaussian Model Clustering}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Setup
+```{r}
+library(workflows)
+library(parsnip)
+library(mclust)
+```
+
+```{r}
+library(tidyclust)
+library(tidyverse)
+library(tidymodels)
+set.seed(838383)
+```
+
+
+Load and clean a dataset:
+
+```{r}
+data("penguins", package = "modeldata")
+
+penguins <- penguins %>%
+  select(bill_length_mm, bill_depth_mm) %>%
+  drop_na()
+
+
+# shuffle rows
+penguins <- penguins %>%
+  sample_n(nrow(penguins))
+```
+
+
+
+At the end of this vignette, you will find a brief overview of the GMM algorithm.
+
+
+
+## gm clust specification in {`tidyclust`}
+
+```{r}
+gm_clust_spec <- gm_clust(num_clusters = 3)
+
+gm_clust_spec
+```
+
+There is currently one engine: `mclust::Mclust` (default) 
+
+## Fitting gm_clust models
+
+We fit the model to data in the usual way:
+
+```{r}
+gm_clust_fit <- gm_clust_spec %>%
+  fit( ~ bill_length_mm + bill_depth_mm,
+       data = penguins
+      )
+
+gm_clust_fit %>% 
+  summary()
+```
+We can also extract the standard `tidyclust` summary list:
+
+
+```{r}
+# gm_clust_summary <- gm_clust_fit %>% extract_fit_summary()
+
+# gm_clust_summary %>% str()
+```
+
+
+```{r}
+gm_clust_fit %>% extract_cluster_assignment()
+
+
+
+```
+
+If you have not yet read the `k_means` vignette, we recommend reading that first;
+functions that are used in this vignette are explained in more detail there.
+
+
+## Prediction
+
+<!-- Since unsupervised methods are not designed for prediction, the notion of  -->
+<!-- predicting the cluster assignment is not always obvious. -->
+
+write stuff here
+
+```{r}
+new_penguin <- tibble(
+  bill_length_mm = 40,
+  bill_depth_mm = 20
+)
+
+gm_clust_fit %>%
+  predict(new_penguin)
+```
+
+
+## A brief introduction to guassian mixture models
+
+
+write and explain here
+
+
+
+
+
+
+
+
+
+
+

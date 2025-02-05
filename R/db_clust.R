@@ -159,11 +159,30 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 #' @keywords internal
 #' @export
 .db_clust_fit_dbscan <- function(x,
-                                  radius = NULL,
-                                  minpts = NULL) {
-  res <- dbscan::dbscan(x, eps = raidus, minPts = minpts)
-  attr(res, "radius") <- radius
-  attr(res, "minpts") <- minpts
+                                 eps = NULL,
+                                 minPts = NULL,
+                                 ...) {
+  if (is.null(eps)) {
+    rlang::abort(
+      "Please specify `radius` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+
+  if (is.null(minPts)) {
+    rlang::abort(
+      "Please specify `minpts` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+
+  res <- dbscan::dbscan(x, eps = eps, minPts = minPts)
+  attr(res, "radius") <- eps
+  attr(res, "minpts") <- minPts
   attr(res, "training_data") <- x
-  return(res)
+  is_core <- is.corepoint(x, eps = eps, minPts = minPts)
+  attr(res, "core_points") <- x[is_core, ]
+  attr(res, "cp_clusters") <- res$cluster[is_core]
+
+  res
 }

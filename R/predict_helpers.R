@@ -3,6 +3,13 @@ make_predictions <- function(x, prefix, n_clusters) {
   factor(x, levels = levels, labels = paste0(prefix, levels))
 }
 
+make_predictions_w_outliers <- function(x, prefix, n_clusters) {
+  levels <- seq_len(n_clusters)-1
+  labels <- paste0(prefix, levels)
+  labels[labels == paste0(prefix, "0")] <- "Outlier"
+  factor(x, levels = levels, labels = labels)
+}
+
 .k_means_predict_stats <- function(object, new_data, prefix = "Cluster_") {
   res <- object$centers
   res <- flexclust::dist2(res, new_data)
@@ -150,13 +157,25 @@ make_predictions <- function(x, prefix, n_clusters) {
   }
   pred_clusts <- unique(clusters$.cluster)[pred_clusts_num]
 
-  pred_clusts
+  pred_clust
 }
 
 .db_clust_predict_dbscan <- function(object, new_data, prefix = "Cluster_") {
 
-  clusters <- predict(object, newdata = new_data, data = object$training_data)
-  n_clusters <- length(db$cluster %>% unique())
+  cp <- attr(object, "core_points")
+  cp_clusters <- attr(object, "cp_clusters")
+  eps <- attr(object, "radius")
+
+  clusters <- dbscan:::.predict_frNN(newdata = new_data, data = cp, cp_clusters, eps = eps)
+  n_clusters <- length(unique(object$cluster))
+
+  make_predictions_w_outliers(clusters, prefix, n_clusters)
+}
+
+.gm_clust_predict_mclust <- function(object, new_data, prefix = "Cluster_") {
+
+  clusters <- predict(object, newdata = new_data)$classification
+  n_clusters <- length(clusters %>% unique())
 
   make_predictions(clusters, prefix, n_clusters)
 }
