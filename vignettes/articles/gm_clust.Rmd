@@ -113,18 +113,59 @@ gm_clust_fit %>%
 ```
 
 
-## A brief introduction to guassian mixture models
-
-
-write and explain here
+## A brief introduction to density-based clustering
 
 
 
+Gaussian Mixture Models (GMM) is a probabilistic unsupervised learning method that models data as a mixture of multiple Gaussian distributions. Unlike clustering methods such as k-means, GMM provides a soft clustering approach, where each observation has a probability of belonging to multiple clusters. This allows for more flexibility in capturing complex data distributions.
 
-
+In GMM, observations are assumed to be generated from a combination of Gaussian distributions, each with its own mean and covariance. The algorithm works by iteratively estimating the parameters of these distributions using the Expectation-Maximization (EM) algorithm. During the fitting process, observations are assigned to clusters based on their probability of belonging to each Gaussian component (**num_clusters**), making GMM effective for identifying overlapping or elliptical clusters in data.
 
 
 
 
 
+```{r}
+penguins %>%
+  mutate(cluster = paste0("Cluster_", sample(c(1,2,3), size = nrow(penguins), replace = TRUE))) %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = cluster)) +
+  geom_point() +
+  stat_ellipse(level = .50, type = "norm", linetype = 1)  +
+  stat_ellipse(level = .75, type = "norm", linetype = 1)  +
+  stat_ellipse(level = .95, type = "norm", linetype = 1)  +
+  theme_minimal() +
+  theme(legend.position = "none")
+  # scale_color_manual(values = c("red"))
+```
+
+
+
+
+```{r}
+penguins %>%
+  mutate(cluster = (gm_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = cluster)) +
+  geom_point() +
+  stat_ellipse(level = .50, type = "norm", linetype = 1)  +
+  stat_ellipse(level = .75, type = "norm", linetype = 1)  +
+  stat_ellipse(level = .95, type = "norm", linetype = 1)  +
+  theme_minimal() +
+  scale_color_manual(values = c("#F8766D", "#00BA38", "#619CFF")) +
+  theme(legend.position = "none")
+```
+
+
+
+```{r}
+gm_clust_engine <- gm_clust_fit %>% extract_fit_engine()
+```
+
+
+```{r}
+gm_clust_engine$parameters
+```
+
+```{r}
+plot(gm_clust_engine)
+```
 

@@ -162,8 +162,10 @@ make_predictions_w_outliers <- function(x, prefix, n_clusters) {
 
 .db_clust_predict_dbscan <- function(object, new_data, prefix = "Cluster_") {
 
-  cp <- attr(object, "core_points")
-  cp_clusters <- attr(object, "cp_clusters")
+  is_core <- attr(object, "is_core")
+  training_data <- attr(object, "training_data")
+  cp <- training_data[is_core,]
+  cp_clusters <- object$cluster[is_core]
   eps <- attr(object, "radius")
 
   clusters <- dbscan:::.predict_frNN(newdata = new_data, data = cp, cp_clusters, eps = eps)

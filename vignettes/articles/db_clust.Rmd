@@ -97,7 +97,6 @@ penguins_std %>%
 ```
 
 
-
 ```{r, echo = FALSE}
 penguins_new <- penguins_std
 penguins_new$cluster <- factor(dbscan_fit$cluster)
@@ -113,9 +112,9 @@ penguins_new %>%
   theme(legend.position = "none")
 ```
 
-2. For each Core point, assign it and all the points within the specified radius around the point ta
+2. For each core point, assign it to a cluster as well as all the points within the specified **radius** of the point.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 penguins_new %>%
   ggplot() +
   geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
@@ -146,6 +145,7 @@ penguins_new %>%
   scale_color_manual(values = c("#619CFF", "black", "red"))
 ```
 
+3. For all the points added to the cluster, check if a point added is a core point. If a point is a core point recursively add all other points wihtin that core point's **radius** to the current cluster.
 
 ```{r, echo = FALSE}
 penguins_new %>%
@@ -162,6 +162,7 @@ penguins_new %>%
   scale_color_manual(values = c("#619CFF", "black", "#619CFF", "red"))
 ```
 
+4. Repeat until all core points have been assigned clusters
 
 ```{r, echo = FALSE}
 penguins_new %>%
@@ -180,6 +181,7 @@ penguins_new %>%
   scale_color_manual(values = c("#00BA38", "black", "#619CFF", "red"))
 ```
 
+5. Points not assigned to a cluster are considered outliers by the algorithm.
 
 ```{r, echo = FALSE}
 penguins_new %>%
@@ -232,8 +234,17 @@ We can also extract the standard `tidyclust` summary list:
 db_clust_fit %>% extract_cluster_assignment()
 ```
 
+```{r}
+penguins_new %>%
+  mutate(cluster2 = (db_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster2)) 
+```
+
+
 
 ```{r}
+#| include: false
 penguins_new %>%
   mutate(cluster2 = (db_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
   ggplot() +
@@ -263,6 +274,9 @@ The `predict()` function behaves as expected, producing cluster assignment
 predictions on new data based on distance to the core points from the fitted model.
 
 
+*Need to make sure it predicts cluster of CLOSEST core point*
+
+
 ```{r}
 new_penguin <- tibble(
   bill_length_std = -1.2454235,
@@ -273,8 +287,8 @@ db_clust_fit %>%
   predict(new_penguin)
 ```
 
-```{r}
-set.seed(80)
+```{r, include=FALSE}
+# set.seed(80)
 
 dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
 is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
@@ -285,54 +299,132 @@ pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_
 
 
 ```{r}
+dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
+is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
+pred_data <- penguins_std[is_core,]
+
+pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+
+pred[144]
+```
+
+
+
+
+```{r, include = FALSE}
+
+
+dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
+is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
+pred_data <- penguins_std[is_core,]
+
+pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+
 test <- db_clust_fit %>%
   predict(penguins_std) %>%
   mutate(.fit_cluster = (db_clust_fit %>% extract_cluster_assignment())$.cluster,
          .bc = pred,
          .bc = case_when(.bc == 0 ~ "Outlier",
                          TRUE ~ paste0("Cluster_", .bc)))
-# %>%
-#   filter(.pred_cluster != .fit_cluster)
-
-# want to assign to closer corepoint
 
 
-which(test$.pred_cluster != test$.bc)
+which(test$.fit_cluster != test$.bc)
 ```
 
 
-```{r, include = FALSE}
 
+```{r}
 dbscan_adj <- dbscan(penguins_std, eps = eps, minPts = minpts)
 is_core <- is.corepoint(penguins_std, eps = eps, minPts = minpts)
-pred_data <- penguins_std[is_core,]
+core_points <- penguins_std[is_core,]
+non_core_points <- penguins_std[!is_core,]
 
-pred <- dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+non_core_point_fits <- dbscan:::.predict_frNN(newdata = non_core_points, data = core_points, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps)
+core_point_fits <- dbscan_adj$cluster[is_core]
+```
 
-preds <- cbind(
-  db_clust_fit %>% extract_cluster_assignment(),
-  db_clust_fit %>% predict(penguins_std),
-  .pred_clust_adj = paste0("Cluster_", dbscan:::.predict_frNN(newdata = penguins_std, data = pred_data, dbscan_adj$cluster[is_core], eps = dbscan_adj$eps))
+
+```{r}
+penguins_temp <- penguins_std
+ncps <- data.frame(non_core_point_fits)
+cps <- data.frame(core_point_fits)
+
+core_point_fits <- dbscan_adj$cluster[is_core]
+
+penguins_std$is_core <- as.character(as.numeric(is_core))
+
+penguins_std$id <- ave(penguins_std$is_core, penguins_std$is_core, FUN = seq_along)
+ncps$id <- 1:nrow(ncps)
+ncps$is_core <- "0"
+cps$id <- 1:nrow(cps)
+cps$is_core <- "1"
+
+penguins_temp <- merge(x = penguins_temp, y = ncps, by = c("id", "is_core"), all.x = TRUE)
+penguins_temp <- merge(x = penguins_temp, y = cps, by = c("id", "is_core"), all.x = TRUE)
+
+penguins_temp$cluster <- ifelse(!is.na(penguins_temp$non_core_point_fits), penguins_temp$non_core_point_fits, penguins_temp$core_point_fits)
+
+
+```
+
+
+
+```{r}
+
+
+dbscan_helper <- function(object,
+                          ...) {
+
+  is_core <- attr(object, "is_core")
+  print(length(is_core))
+  training_data <- data.frame(attr(object, "training_data"))
+  cp <- training_data[is_core,]
+  non_cp <- training_data[!is_core,]
+  cp_clusters <- object$cluster[is_core]
+  eps <- attr(object, "radius")
+
+  # get fit values according to closest core point
+  non_cp_clusters <- dbscan:::.predict_frNN(newdata = non_cp, data = cp, cp_clusters, eps = eps)
+
+  # join back separated fits into proper order in training data
+  non_cp_clusters <- data.frame(non_cp_clusters)
+  cp_clusters <- data.frame(cp_clusters)
+
+  # create vars to join back results in proper order
+  training_data$is_core <- ifelse(is_core, "cp", "non cp")
+  non_cp_clusters$is_core <- "non cp"
+  cp_clusters$is_core <- "cp"
+
+  training_data$overall_order <- 1:nrow(training_data)
+  training_data$id <- ave(training_data$is_core, training_data$is_core, FUN = seq_along)
+  non_cp_clusters$id <- 1:nrow(non_cp_clusters)
+  cp_clusters$id <- 1:nrow(cp_clusters)
+
+  training_data <- merge(x = training_data, y = non_cp_clusters, by = c("id", "is_core"), all.x = TRUE)
+  training_data <- merge(x = training_data, y = cp_clusters, by = c("id", "is_core"), all.x = TRUE)
+
+  training_data$cluster <- ifelse(!is.na(training_data$non_cp_clusters), training_data$non_cp_clusters, training_data$cp_clusters)
   
+  training_data$cluster[order(training_data$overall_order)]
+
+}
+
 ```
+
+
 ```{r}
-preds %>% filter(.cluster != .pred_cluster)
+dbscan_helper(db_clust_fit$fit) 
 ```
 
 
 ```{r}
-cbind(
-  attr(db_clust_fit$fit, "training_data"),
-  attr(db_clust_fit$fit, "core_points")
-)
-
-dist(db_clust_fit)
+penguins_new %>%
+  mutate(cluster2 = factor(dbscan_helper(db_clust_fit$fit))) %>%
+  ggplot() +
+  geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster2)) 
 
 
-
-
-new_penguin
-
-
+dbscan_helper(db_clust_fit$fit)
 ```
+
 

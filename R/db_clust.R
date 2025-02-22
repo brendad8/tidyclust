@@ -181,8 +181,51 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
   attr(res, "minpts") <- minPts
   attr(res, "training_data") <- x
   is_core <- is.corepoint(x, eps = eps, minPts = minPts)
-  attr(res, "core_points") <- x[is_core, ]
-  attr(res, "cp_clusters") <- res$cluster[is_core]
+  attr(res, "is_core") <- is_core
 
   res
+}
+
+#' dbscan fit helper function
+#'
+#' This function...
+#'
+#' @param x matrix or data frame
+#'
+#' @return dbscan object
+#' @keywords internal
+dbscan_helper <- function(object,
+                          ...) {
+
+  is_core <- attr(object, "is_core")
+  print(length(is_core))
+  training_data <- data.frame(attr(object, "training_data"))
+  cp <- training_data[is_core,]
+  non_cp <- training_data[!is_core,]
+  cp_clusters <- object$cluster[is_core]
+  eps <- attr(object, "radius")
+
+  # get fit values according to closest core point
+  non_cp_clusters <- dbscan:::.predict_frNN(newdata = non_cp, data = cp, cp_clusters, eps = eps)
+
+  # join back separated fits into proper order in training data
+  non_cp_clusters <- data.frame(non_cp_clusters)
+  cp_clusters <- data.frame(cp_clusters)
+
+  # create vars to join back results in proper order
+  training_data$overall_order <- 1:nrow(training_data)
+  training_data$is_core <- ifelse(is_core, "cp", "non cp")
+  non_cp_clusters$is_core <- "non cp"
+  cp_clusters$is_core <- "cp"
+
+  training_data$id <- ave(training_data$is_core, training_data$is_core, FUN = seq_along)
+  non_cp_clusters$id <- 1:nrow(non_cp_clusters)
+  cp_clusters$id <- 1:nrow(cp_clusters)
+
+  training_data <- merge(x = training_data, y = non_cp_clusters, by = c("id", "is_core"), all.x = TRUE)
+  training_data <- merge(x = training_data, y = cp_clusters, by = c("id", "is_core"), all.x = TRUE)
+
+  training_data$cluster <- ifelse(!is.na(training_data$non_cp_clusters), training_data$non_cp_clusters, training_data$cp_clusters)
+  training_data$cluster[order(training_data$overall_order)]
+
 }

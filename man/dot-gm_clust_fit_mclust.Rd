@@ -2,7 +2,7 @@
 % Please edit documentation in R/gm_clust.R
 \name{.gm_clust_fit_mclust}
 \alias{.gm_clust_fit_mclust}
-\title{Simple Wrapper around dbscan function}
+\title{Simple Wrapper around Mclust function}
 \usage{
 .gm_clust_fit_mclust(x, G = NULL, ...)
 }

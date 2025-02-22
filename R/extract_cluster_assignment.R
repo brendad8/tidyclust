@@ -159,7 +159,7 @@ extract_cluster_assignment.hclust <- function(object,
 
 #' @export
 extract_cluster_assignment.dbscan <- function(object, ...) {
-  clusters <- object$cluster
+  clusters <- dbscan_helper(object)
   n_clusters <- length(unique(clusters))
   cluster_assignment_tibble_w_outliers(clusters, n_clusters, ...)
 }
