@@ -4,7 +4,7 @@
 \alias{dbscan_helper}
 \title{dbscan fit helper function}
 \usage{
-dbscan_helper(x, ...)
+dbscan_helper(object, ...)
 }
 \arguments{
 \item{x}{matrix or data frame}

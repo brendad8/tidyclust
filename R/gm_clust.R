@@ -17,6 +17,7 @@
 #'   to use for fitting. The engine for this model is `"mclust"`.
 #' @param num_clusters Positive integer, number of clusters in model (required).
 #'
+#' @importFrom mclust mclustBIC
 #'
 #' @details
 #'

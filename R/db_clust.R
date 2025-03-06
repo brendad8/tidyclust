@@ -180,7 +180,7 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
   attr(res, "radius") <- eps
   attr(res, "minpts") <- minPts
   attr(res, "training_data") <- x
-  is_core <- is.corepoint(x, eps = eps, minPts = minPts)
+  is_core <- dbscan::is.corepoint(x, eps = eps, minPts = minPts)
   attr(res, "is_core") <- is_core
 
   res
@@ -198,7 +198,6 @@ dbscan_helper <- function(object,
                           ...) {
 
   is_core <- attr(object, "is_core")
-  print(length(is_core))
   training_data <- data.frame(attr(object, "training_data"))
   cp <- training_data[is_core,]
   non_cp <- training_data[!is_core,]

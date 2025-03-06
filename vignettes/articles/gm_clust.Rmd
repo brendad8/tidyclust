@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -19,16 +21,20 @@ knitr::opts_chunk$set(
 ```{r}
 library(workflows)
 library(parsnip)
-library(mclust)
 ```
+
+Load Libraries:
 
 ```{r}
 library(tidyclust)
 library(tidyverse)
 library(tidymodels)
-set.seed(838383)
 ```
 
+
+```{r setup_secret, echo = FALSE}
+set.seed(822)
+```
 
 Load and clean a dataset:
 
@@ -51,7 +57,9 @@ At the end of this vignette, you will find a brief overview of the GMM algorithm
 
 
 
-## gm clust specification in {`tidyclust`}
+## `gm_clust` specification in {`tidyclust`}
+
+To specify a GMM model in `tidyclust`, simply set the value for `num_clusters`:
 
 ```{r}
 gm_clust_spec <- gm_clust(num_clusters = 3)
@@ -63,7 +71,7 @@ There is currently one engine: `mclust::Mclust` (default)
 
 ## Fitting gm_clust models
 
-We fit the model to data in the usual way:
+After specifying the model specification, we fit the model to data in the usual way:
 
 ```{r}
 gm_clust_fit <- gm_clust_spec %>%
@@ -74,33 +82,46 @@ gm_clust_fit <- gm_clust_spec %>%
 gm_clust_fit %>% 
   summary()
 ```
+
 We can also extract the standard `tidyclust` summary list:
 
-
 ```{r}
-# gm_clust_summary <- gm_clust_fit %>% extract_fit_summary()
+gm_clust_summary <- gm_clust_fit %>% extract_fit_summary()
 
-# gm_clust_summary %>% str()
+gm_clust_summary %>% str()
 ```
+## Cluster assignments and centers
 
+The cluster assignments for the training data can be accessed using the `extract_cluster_assignment()` function.
 
 ```{r}
 gm_clust_fit %>% extract_cluster_assignment()
-
-
-
 ```
+
+**Should probably make some way to extract probabilities of belonging to each group**
+
+```{r}
+gm_clust_fit$fit$z %>% head()
+```
+
+
 
 If you have not yet read the `k_means` vignette, we recommend reading that first;
 functions that are used in this vignette are explained in more detail there.
 
+### Centroids
+
+The centroids for the fitted clusters can be accessed via  `extract_centroids()`:
+
+```{r}
+gm_clust_fit %>% extract_centroids()
+```
+
 
 ## Prediction
 
-<!-- Since unsupervised methods are not designed for prediction, the notion of  -->
-<!-- predicting the cluster assignment is not always obvious. -->
 
-write stuff here
+For GMMs each cluster is modeled as a multivariate normal distribution. This makes prediction easy since we can calculate the probability that each point belongs to each of the fitted clusters. Therefore, it is natural for the `predict()` function to assign new observations to the cluster in which they have the highest probability of belonging to.
 
 ```{r}
 new_penguin <- tibble(
@@ -116,7 +137,6 @@ gm_clust_fit %>%
 ## A brief introduction to density-based clustering
 
 
-
 Gaussian Mixture Models (GMM) is a probabilistic unsupervised learning method that models data as a mixture of multiple Gaussian distributions. Unlike clustering methods such as k-means, GMM provides a soft clustering approach, where each observation has a probability of belonging to multiple clusters. This allows for more flexibility in capturing complex data distributions.
 
 In GMM, observations are assumed to be generated from a combination of Gaussian distributions, each with its own mean and covariance. The algorithm works by iteratively estimating the parameters of these distributions using the Expectation-Maximization (EM) algorithm. During the fitting process, observations are assigned to clusters based on their probability of belonging to each Gaussian component (**num_clusters**), making GMM effective for identifying overlapping or elliptical clusters in data.
@@ -126,22 +146,108 @@ In GMM, observations are assumed to be generated from a combination of Gaussian 
 
 
 ```{r}
-penguins %>%
-  mutate(cluster = paste0("Cluster_", sample(c(1,2,3), size = nrow(penguins), replace = TRUE))) %>%
-  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = cluster)) +
-  geom_point() +
-  stat_ellipse(level = .50, type = "norm", linetype = 1)  +
-  stat_ellipse(level = .75, type = "norm", linetype = 1)  +
-  stat_ellipse(level = .95, type = "norm", linetype = 1)  +
-  theme_minimal() +
-  theme(legend.position = "none")
-  # scale_color_manual(values = c("red"))
+#| include: false
+plot_state <- function(obj) {
+  
+  data.grid <- expand.grid(bill_length_mm = seq(20, 80, length.out=200), bill_depth_mm = seq(10, 25, length.out=200))
+  
+  mean1 <- obj$mean1
+  mean2 <- obj$mean2
+  mean3 <- obj$mean3
+  
+  sigma1 <- obj$sigma1
+  sigma2 <- obj$sigma2
+  sigma3 <- obj$sigma3
+  
+  q.samp1 <- cbind(data.grid, prob = mvtnorm::dmvnorm(data.grid, mean = mean1, sigma = sigma1))
+  q.samp2 <- cbind(data.grid, prob = mvtnorm::dmvnorm(data.grid, mean = mean2, sigma = sigma2))
+  q.samp3 <- cbind(data.grid, prob = mvtnorm::dmvnorm(data.grid, mean = mean3, sigma = sigma3))
+  
+  penguins_temp <- penguins %>%
+    mutate(p1 = mvtnorm::dmvnorm(cbind(bill_length_mm, bill_depth_mm), mean = mean1, sigma = sigma1),
+           p2 = mvtnorm::dmvnorm(cbind(bill_length_mm, bill_depth_mm), mean = mean2, sigma = sigma2),
+           p3 = mvtnorm::dmvnorm(cbind(bill_length_mm, bill_depth_mm), mean = mean3, sigma = sigma3),
+           class = case_when(p1 > p2 & p1 > p3 ~ "1",
+                             p2 > p3 ~ "2",
+                             TRUE ~ "3"))
+  
+  ggplot() + 
+      geom_point(aes(x = bill_length_mm, y = bill_depth_mm, color = class), data = penguins_temp) +
+      geom_contour(aes(x=bill_length_mm, y=bill_depth_mm, z=prob), data = q.samp1, color = "#F8766D", bins = 5) +
+      geom_contour(aes(x=bill_length_mm, y=bill_depth_mm, z=prob), data = q.samp2, color = "#00BA38", bins = 5) +
+      geom_contour(aes(x=bill_length_mm, y=bill_depth_mm, z=prob), data = q.samp3, color = "#619CFF", bins = 5) +
+    theme_minimal() +
+    scale_fill_manual() +
+    theme(legend.position = "none")
+  
+}
 ```
 
 
+```{r}
+#| include: false
+param_init <- list(
+  mean1 = c(45,20), 
+  mean2 = c(45, 17.5), 
+  mean3 = c(45, 15),
+  sigma1 = matrix(c(15,0,0,0.4), nrow = 2, byrow = TRUE),
+  sigma2 = matrix(c(15,0,0,0.4), nrow = 2, byrow = TRUE),
+  sigma3 = matrix(c(15,0,0,0.4), nrow = 2, byrow = TRUE)
+)
+
+param_iter1 <- list(
+  mean1 = c(45.73339, 19.27432), 
+  mean2 = c(40.12257, 17.81372), 
+  mean3 = c(47.44993, 14.93927),
+  sigma1 = matrix(c(37.408656, -1.623795, -1.623795, 1.079872), nrow = 2),
+  sigma2 = matrix(c(16.9103292, 0.3527712, 0.3527712, 0.8637195), nrow = 2),
+  sigma3 = matrix(c(8.093719, 1.797110, 1.797110, 0.874565), nrow = 2)
+)
+
+param_iter2 <- list(
+  mean1 = c(48.15322, 18.25719), 
+  mean2 = c(38.52801, 18.28852), 
+  mean3 = c(47.28095, 14.84609),
+  sigma1 = matrix(c(17.177953, 1.247011, 1.247011, 1.643133), nrow = 2),
+  sigma2 = matrix(c(5.9677874, 0.9537252, 0.9537252, 1.4710272), nrow = 2),
+  sigma3 = matrix(c(7.584198, 1.613411, 1.613411, 0.766815), nrow = 2)
+)
+
+param_conv <- list(
+  mean1 = c(49.17829, 18.46058), 
+  mean2 = c(39.0444, 18.3100), 
+  mean3 = c(47.69776, 14.98856),
+  sigma1 = matrix(c(7.626905, 2.329064, 2.329064, 1.346795), nrow = 2),
+  sigma2 = matrix(c(7.837458, 1.077226, 1.077226, 1.477878), nrow = 2),
+  sigma3 = matrix(c(10.3399995, 2.3100534, 2.3100534, 0.9769847), nrow = 2)
+)
+ 
+```
 
 
 ```{r}
+#| echo: false
+plot_state(param_init)
+```
+```{r}
+#| echo: false
+plot_state(param_iter1)
+```
+
+```{r}
+#| echo: false
+plot_state(param_iter2)
+```
+
+
+```{r}
+#| echo: false
+plot_state(param_conv)
+```
+
+
+```{r}
+#| include: false
 penguins %>%
   mutate(cluster = (gm_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = cluster)) +
@@ -156,16 +262,4 @@ penguins %>%
 
 
 
-```{r}
-gm_clust_engine <- gm_clust_fit %>% extract_fit_engine()
-```
-
-
-```{r}
-gm_clust_engine$parameters
-```
-
-```{r}
-plot(gm_clust_engine)
-```
 

@@ -177,7 +177,7 @@ make_predictions_w_outliers <- function(x, prefix, n_clusters) {
 .gm_clust_predict_mclust <- function(object, new_data, prefix = "Cluster_") {
 
   clusters <- predict(object, newdata = new_data)$classification
-  n_clusters <- length(clusters %>% unique())
+  n_clusters <- attr(object, "num_clusters")
 
   make_predictions(clusters, prefix, n_clusters)
 }

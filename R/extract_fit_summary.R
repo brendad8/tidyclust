@@ -179,3 +179,67 @@ extract_fit_summary.hclust <- function(object, ...) {
     cluster_assignments = clusts
   )
 }
+
+#' @export
+extract_fit_summary.dbscan <- function(object, ...) {
+  clusts <- extract_cluster_assignment(object, ...)$.cluster
+  n_clust <- dplyr::n_distinct(clusts)-1
+  n_outliers <- length(clusts == "Outlier")
+  training_data <- attr(object, "training_data")
+
+  overall_centroid <- colMeans(training_data)
+
+  by_clust <- training_data %>%
+    tibble::as_tibble() %>%
+    dplyr::mutate(
+      .cluster = clusts
+    ) %>%
+    dplyr::filter(.cluster != "Outlier") %>%
+    dplyr::group_by(.cluster) %>%
+    tidyr::nest()
+
+  centroids <- by_clust$data %>%
+    map(dplyr::summarize_all, mean) %>%
+    dplyr::bind_rows()
+
+
+  list(
+    cluster_names = unique(clusts),
+    centroids = centroids,
+    n_members = unname(as.integer(table(clusts))),
+    n_outliers = n_outliers,
+    orig_labels = NULL,
+    cluster_assignments = clusts
+  )
+}
+
+#' @export
+extract_fit_summary.Mclust <- function(object, ...) {
+  clusts <- extract_cluster_assignment(object, ...)$.cluster
+  n_clust <- dplyr::n_distinct(clusts)
+  training_data <- attr(object, "training_data")
+
+  overall_centroid <- colMeans(training_data)
+
+  by_clust <- training_data %>%
+    tibble::as_tibble() %>%
+    dplyr::mutate(
+      .cluster = clusts
+    ) %>%
+    dplyr::filter(.cluster != "Outlier") %>%
+    dplyr::group_by(.cluster) %>%
+    tidyr::nest()
+
+  centroids <- by_clust$data %>%
+    map(dplyr::summarize_all, mean) %>%
+    dplyr::bind_rows()
+
+
+  list(
+    cluster_names = unique(clusts),
+    centroids = centroids,
+    n_members = unname(as.integer(table(clusts))),
+    orig_labels = NULL,
+    cluster_assignments = clusts
+  )
+}

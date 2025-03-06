@@ -193,14 +193,6 @@ cluster_assignment_tibble_w_outliers <- function(clusters,
   names <- paste0(prefix, 0:(n_clusters-1))
   res <- names[reorder_clusts][clusters+1]
   res[res == paste0(prefix, "0")] <- "Outlier"
-  # zero_count <- 0
-  # res <- sapply(res, function(x) {
-  #   if (x == "Cluster_0") {
-  #     zero_count <<- zero_count + 1
-  #     paste0("Cluster_0_", zero_count)
-  #   } else {
-  #     x
-  #   }
-  # })
+
   tibble::tibble(.cluster = factor(res))
 }
