@@ -4,9 +4,10 @@ make_predictions <- function(x, prefix, n_clusters) {
 }
 
 make_predictions_w_outliers <- function(x, prefix, n_clusters) {
-  levels <- seq_len(n_clusters)-1
+  x <- ifelse(x == 0, n_clusters, x)
+  levels <- seq_len(n_clusters)
   labels <- paste0(prefix, levels)
-  labels[labels == paste0(prefix, "0")] <- "Outlier"
+  labels[n_clusters] <- "Outlier"
   factor(x, levels = levels, labels = labels)
 }
 

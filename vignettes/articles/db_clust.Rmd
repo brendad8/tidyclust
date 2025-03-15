@@ -89,6 +89,7 @@ db_clust_fit <- db_clust_spec %>%
 
 db_clust_fit %>% 
   summary()
+
 ```
 
 We can also extract the standard `tidyclust` summary list:
@@ -181,7 +182,8 @@ penguins_std %>%
   scale_color_manual(values = c("red"))
 
 penguins_new <- penguins_std
-penguins_new$cluster <- factor(dbscan_fit$cluster)
+penguins_new$cluster <- (db_clust_fit %>% extract_cluster_assignment())$.cluster
+# factor(dbscan_fit$cluster)
 penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, minPts = minpts)) == 1, "Yes", "No"), levels = c("Yes", "No"))
 
 penguins_new %>%
@@ -203,7 +205,7 @@ penguins_new %>%
   geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cp_color)) +
   theme_minimal() +
   coord_fixed() + 
-  scale_color_manual(values = c("black", "#619CFF", "#F8766D", "#00BA38")) +
+  scale_color_manual(values = c("black", "#F8766D", "#00BA38", "#619CFF")) +
   theme(legend.position = "none")
 ```
 
@@ -216,6 +218,7 @@ penguins_new %>%
   geom_point(aes(x = bill_length_std, y = bill_depth_std, color = cluster)) +
   theme_minimal() +
   coord_fixed() + 
-  scale_color_manual(values = c("black", "#619CFF", "#F8766D", "#00BA38")) +
+  scale_color_manual(values = c("#F8766D", "#00BA38", "#619CFF", "black")) +
   theme(legend.position = "none")
 ```
+

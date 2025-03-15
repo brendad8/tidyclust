@@ -262,4 +262,9 @@ penguins %>%
 
 
 
+```{r}
+gmm_engine <- gm_clust_fit %>% extract_fit_engine()
+
+mclust::plot.Mclust(gmm_engine)
+```
 

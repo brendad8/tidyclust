@@ -183,8 +183,7 @@ extract_fit_summary.hclust <- function(object, ...) {
 #' @export
 extract_fit_summary.dbscan <- function(object, ...) {
   clusts <- extract_cluster_assignment(object, ...)$.cluster
-  n_clust <- dplyr::n_distinct(clusts)-1
-  n_outliers <- length(clusts == "Outlier")
+  n_clust <- dplyr::n_distinct(clusts)
   training_data <- attr(object, "training_data")
 
   overall_centroid <- colMeans(training_data)
@@ -194,7 +193,6 @@ extract_fit_summary.dbscan <- function(object, ...) {
     dplyr::mutate(
       .cluster = clusts
     ) %>%
-    dplyr::filter(.cluster != "Outlier") %>%
     dplyr::group_by(.cluster) %>%
     tidyr::nest()
 
@@ -202,12 +200,21 @@ extract_fit_summary.dbscan <- function(object, ...) {
     map(dplyr::summarize_all, mean) %>%
     dplyr::bind_rows()
 
+  centroids[n_clust, ] <- NA
+
+  sse_within_total_total <- map2_dbl(
+    by_clust$data,
+    seq_len(n_clust),
+    ~ sum(Rfast::dista(centroids[.y, ], .x))
+  )
+
 
   list(
     cluster_names = unique(clusts),
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
-    n_outliers = n_outliers,
+    sse_within_total_total = sse_within_total_total,
+    sse_total = sum(Rfast::dista(t(overall_centroid), training_data)),
     orig_labels = NULL,
     cluster_assignments = clusts
   )
