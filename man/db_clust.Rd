@@ -4,7 +4,12 @@
 \alias{db_clust}
 \title{Density-Based Spatial Clustering of Applications with Noise (DBSCAN)}
 \usage{
-db_clust(mode = "partition", engine = "dbscan", radius = NULL, minpts = NULL)
+db_clust(
+  mode = "partition",
+  engine = "dbscan",
+  radius = NULL,
+  min_points = NULL
+)
 }
 \arguments{
 \item{mode}{A single character string for the type of model. The only
@@ -15,7 +20,7 @@ to use for fitting. The engine for this model is \code{"dbscan"}.}
 
 \item{radius}{Positive integer, Radius used to determine core-points and cluster points together (required).}
 
-\item{minpts}{Positive double, Minimum number of points needed to form a cluster (required)}
+\item{min_points}{Positive double, Minimum number of points needed to form a cluster (required)}
 }
 \value{
 A \code{db_clust} cluster specification.

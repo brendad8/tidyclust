@@ -13,7 +13,7 @@
   object,
   parameters = NULL,
   radius = NULL,
-  minpts = NULL,
+  min_points = NULL,
   fresh = FALSE,
   ...
 )

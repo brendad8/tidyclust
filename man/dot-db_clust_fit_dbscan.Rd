@@ -11,14 +11,14 @@
 
 \item{radius}{Radius used to determine core-points and cluster points together}
 
-\item{minpts}{Minimum number of points needed to form a cluster}
+\item{min_points}{Minimum number of points needed to form a cluster}
 }
 \value{
 dbscan object
 }
 \description{
 This wrapper prepares the data into a distance matrix to send to
-\code{dbscan::dbscan} and retains the parameters \code{radius} or \code{minpts} as an
+\code{dbscan::dbscan} and retains the parameters \code{radius} or \code{min_points} as an
 attribute.
 }
 \keyword{internal}
