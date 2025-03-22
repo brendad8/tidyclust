@@ -141,7 +141,7 @@ db_clust_fit %>%
 
 Density-Based Spatial Clustering of Applications with Noise (DBSCAN) is a method of unsupervised learning that groups observations into clusters based on their density in multidimensional space. Unlike methods such as k-means, DBSCAN does not require specifying the number of clusters beforehand and can identify clusters of arbitrary shapes. Additionally, it can classify points that do not belong to any cluster as outliers, allowing for greater flexibility in handling real-world data.
 
-In DBSCAN, observations are considered as locations in multidimensional space. The algorithm works by defining a cluster as a dense region of connected points. During the fitting process, points are classified as core points, border points, or noise based on their proximity to other points (**radius**) and a density threshold (**min_pts**).
+In DBSCAN, observations are considered as locations in multidimensional space. The algorithm works by defining a cluster as a dense region of connected points. During the fitting process, points are classified as core points, border points, or noise based on their proximity to other points (**radius**) and a density threshold (**min_points**).
 
 The fitting process can be described as follows:
 
@@ -162,7 +162,7 @@ coord_fixed()
 library(dbscan)
 eps <- 0.35
 min_points <- 10
-dbscan_fit <- dbscan(penguins_std, eps = eps, min_points = min_points)
+dbscan_fit <- dbscan(penguins_std, eps = eps, minPts = min_points)
 
 ```
 
@@ -184,7 +184,7 @@ penguins_std %>%
 penguins_new <- penguins_std
 penguins_new$cluster <- (db_clust_fit %>% extract_cluster_assignment())$.cluster
 # factor(dbscan_fit$cluster)
-penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, min_points = min_points)) == 1, "Yes", "No"), levels = c("Yes", "No"))
+penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, minPts = min_points)) == 1, "Yes", "No"), levels = c("Yes", "No"))
 
 penguins_new %>%
   ggplot(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
