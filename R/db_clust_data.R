@@ -50,16 +50,16 @@ make_db_clust <- function() {
     eng = "dbscan",
     exposed = "radius",
     original = "eps",
-    func = list(pkg = "dials", fun = "raidus"),
+    func = list(pkg = "dials", fun = "radius"),
     has_submodel = TRUE
   )
 
   modelenv::set_model_arg(
     model = "db_clust",
     eng = "dbscan",
-    exposed = "minpts",
+    exposed = "min_points",
     original = "minPts",
-    func = list(pkg = "dials", fun = "minpts"),
+    func = list(pkg = "dials", fun = "min_points"),
     has_submodel = TRUE
   )
 

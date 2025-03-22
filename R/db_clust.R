@@ -16,7 +16,7 @@
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"dbscan"`.
 #' @param radius Positive integer, Radius used to determine core-points and cluster points together (required).
-#' @param minpts Positive double, Minimum number of points needed to form a cluster (required)
+#' @param min_points Positive double, Minimum number of points needed to form a cluster (required)
 #'
 #'
 #' @details
@@ -40,10 +40,10 @@ db_clust <-
   function(mode = "partition",
            engine = "dbscan",
            radius = NULL,
-           minpts = NULL) {
+           min_points = NULL) {
     args <- list(
       radius = enquo(radius),
-      minpts = enquo(minpts)
+      min_points = enquo(min_points)
     )
 
     new_cluster_spec(
@@ -77,7 +77,7 @@ print.db_clust <- function(x, ...) {
 update.db_clust <- function(object,
                               parameters = NULL,
                               radius = NULL,
-                              minpts = NULL,
+                              min_points = NULL,
                               fresh = FALSE, ...) {
   eng_args <- parsnip::update_engine_parameters(
     object$eng_args,
@@ -89,7 +89,7 @@ update.db_clust <- function(object,
   }
   args <- list(
     radius = enquo(radius),
-    minpts = enquo(minpts),
+    min_points = enquo(min_points),
   )
 
   args <- parsnip::update_main_parameters(args, parameters)
@@ -126,7 +126,7 @@ update.db_clust <- function(object,
 check_args.db_clust <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
-  if (all(is.numeric(args$minpts)) && any(args$minpts < 0)) {
+  if (all(is.numeric(args$min_points)) && any(args$min_points < 0)) {
     rlang::abort("The number of points in a cluster should be > 0.")
   }
 
@@ -148,19 +148,19 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 #' Simple Wrapper around dbscan function
 #'
 #' This wrapper prepares the data into a distance matrix to send to
-#' `dbscan::dbscan` and retains the parameters `radius` or `minpts` as an
+#' `dbscan::dbscan` and retains the parameters `radius` or `min_points` as an
 #' attribute.
 #'
 #' @param x matrix or data frame
 #' @param radius Radius used to determine core-points and cluster points together
-#' @param minpts Minimum number of points needed to form a cluster
+#' @param min_points Minimum number of points needed to form a cluster
 #'
 #' @return dbscan object
 #' @keywords internal
 #' @export
 .db_clust_fit_dbscan <- function(x,
                                  eps = NULL,
-                                 minPts = NULL,
+                                 min_points = NULL,
                                  ...) {
   if (is.null(eps)) {
     rlang::abort(
@@ -169,18 +169,18 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
     )
   }
 
-  if (is.null(minPts)) {
+  if (is.null(min_points)) {
     rlang::abort(
-      "Please specify `minpts` to be able to fit specification.",
+      "Please specify `min_points` to be able to fit specification.",
       call = call("fit")
     )
   }
 
-  res <- dbscan::dbscan(x, eps = eps, minPts = minPts)
+  res <- dbscan::dbscan(x, eps = eps, min_points = min_points)
   attr(res, "radius") <- eps
-  attr(res, "minpts") <- minPts
+  attr(res, "min_points") <- min_points
   attr(res, "training_data") <- x
-  is_core <- dbscan::is.corepoint(x, eps = eps, minPts = minPts)
+  is_core <- dbscan::is.corepoint(x, eps = eps, min_points = min_points)
   attr(res, "is_core") <- is_core
 
   res

@@ -62,7 +62,7 @@ At the end of this vignette, you will find a brief overview of the DBSCAN algori
 To specify a DBSCAN model in `tidyclust`, simply set the values for `radius` and `min_pts`:
 
 ```{r}
-db_clust_spec <- db_clust(radius = 0.35, minpts = 10)
+db_clust_spec <- db_clust(radius = 0.35, min_points = 10)
 
 db_clust_spec
 ```
@@ -155,14 +155,14 @@ coord_fixed()
 
 ```
 
-1. For each observation in the data, determine whether each point is a core point. A core point is defined as an observation which has more than the specified **minpts** points (including the point itself) within the specified **radius** around the point.
+1. For each observation in the data, determine whether each point is a core point. A core point is defined as an observation which has more than the specified **min_points** points (including the point itself) within the specified **radius** around the point.
 
 
 ```{r, include = FALSE}
 library(dbscan)
 eps <- 0.35
-minpts <- 10
-dbscan_fit <- dbscan(penguins_std, eps = eps, minPts = minpts)
+min_points <- 10
+dbscan_fit <- dbscan(penguins_std, eps = eps, min_points = min_points)
 
 ```
 
@@ -184,7 +184,7 @@ penguins_std %>%
 penguins_new <- penguins_std
 penguins_new$cluster <- (db_clust_fit %>% extract_cluster_assignment())$.cluster
 # factor(dbscan_fit$cluster)
-penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, minPts = minpts)) == 1, "Yes", "No"), levels = c("Yes", "No"))
+penguins_new$cp <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, min_points = min_points)) == 1, "Yes", "No"), levels = c("Yes", "No"))
 
 penguins_new %>%
   ggplot(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
