@@ -67,6 +67,8 @@ tunable.k_means <- function(x, ...) {
   res
 }
 
+
+
 stats_k_means_engine_args <-
   tibble::tibble(
     name = c(
@@ -79,3 +81,29 @@ stats_k_means_engine_args <-
     component = "k_means",
     component_id = "engine"
   )
+
+
+# #' @export
+# tunable.dbscan <- function(x, ...) {
+#   res <- NextMethod()
+#   if (x$engine == "dbscan") {
+#     res <- add_engine_parameters(res, stats_k_means_engine_args)
+#   }
+#   res
+# }
+#
+# dbscan_db_clust_engine_args <-
+#   tibble::tibble(
+#     name = c(
+#       "",
+#       "core_points"
+#     ),
+#     call_info = list(
+#       list(pkg = "dials", fun = "radius"),
+#       list(pkg = "dials", fun = "core_points"),
+#     ),
+#     source = "cluster_spec",
+#     component = "db_scan",
+#     component_id = "engine"
+#   )
+
