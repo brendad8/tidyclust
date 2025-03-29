@@ -83,27 +83,27 @@ stats_k_means_engine_args <-
   )
 
 
-# #' @export
-# tunable.dbscan <- function(x, ...) {
-#   res <- NextMethod()
-#   if (x$engine == "dbscan") {
-#     res <- add_engine_parameters(res, stats_k_means_engine_args)
-#   }
-#   res
-# }
-#
-# dbscan_db_clust_engine_args <-
-#   tibble::tibble(
-#     name = c(
-#       "",
-#       "core_points"
-#     ),
-#     call_info = list(
-#       list(pkg = "dials", fun = "radius"),
-#       list(pkg = "dials", fun = "core_points"),
-#     ),
-#     source = "cluster_spec",
-#     component = "db_scan",
-#     component_id = "engine"
-#   )
+#' @export
+tunable.db_clust <- function(x, ...) {
+  res <- NextMethod()
+  if (x$engine == "dbscan") {
+    res <- add_engine_parameters(res, dbscan_db_clust_engine_args)
+  }
+  res
+}
+
+dbscan_db_clust_engine_args <-
+  tibble::tibble(
+    name = c(
+      "eps",
+      "minPts"
+    ),
+    call_info = list(
+      list(pkg = "dials", fun = "radius"),
+      list(pkg = "dials", fun = "min_points"),
+    ),
+    source = "cluster_spec",
+    component = "dbscan",
+    component_id = "engine"
+  )
 
