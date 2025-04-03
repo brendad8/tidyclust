@@ -15,8 +15,8 @@
 #'   possible value for this model is "partition".
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"dbscan"`.
-#' @param radius Positive integer, Radius used to determine core-points and cluster points together (required).
-#' @param min_points Positive double, Minimum number of points needed to form a cluster (required)
+#' @param radius Positive double, Radius drawn around points to determine core-points and cluster assignments (required)
+#' @param min_points Positive integer, Minimum number of points required to form a core-point (required)
 #'
 #'
 #' @details
@@ -89,7 +89,7 @@ update.db_clust <- function(object,
   }
   args <- list(
     radius = enquo(radius),
-    min_points = enquo(min_points),
+    min_points = enquo(min_points)
   )
 
   args <- parsnip::update_main_parameters(args, parameters)

@@ -100,7 +100,7 @@ dbscan_db_clust_engine_args <-
     ),
     call_info = list(
       list(pkg = "dials", fun = "radius"),
-      list(pkg = "dials", fun = "min_points"),
+      list(pkg = "dials", fun = "min_points")
     ),
     source = "cluster_spec",
     component = "dbscan",

@@ -27,7 +27,7 @@ make_db_clust <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      protect = c("data"),
+      protect = c("x", "eps", "minPts"),
       func = c(pkg = "tidyclust", fun = ".db_clust_fit_dbscan"),
       defaults = list()
     )

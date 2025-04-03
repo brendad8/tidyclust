@@ -189,13 +189,13 @@ cluster_assignment_tibble_w_outliers <- function(clusters,
                                                  n_clusters,
                                                  ...,
                                                  prefix = "Cluster_") {
-  # move outlier from cluster 0 to cluster n_clusters
-  clusters <- ifelse(clusters == 0, n_clusters, clusters)
 
-  reorder_clusts <- order(union(unique(clusters), seq_len(n_clusters)))
-  names <- paste0(prefix, seq_len(n_clusters))
-  names[n_clusters] <- "Outlier"
-  res <- names[reorder_clusts][clusters]
+  no_outliers <- clusters[clusters != 0]
+  new_mappings <- c(0,order(union(unique(no_outliers), seq_len(n_clusters-1))))
 
+  names <- paste0(prefix, 0:(n_clusters))
+  names[1] <- "Outlier"
+
+  res <- names[new_mappings[(clusters+1)]+1]
   tibble::tibble(.cluster = factor(res))
 }
