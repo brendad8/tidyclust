@@ -200,7 +200,8 @@ extract_fit_summary.dbscan <- function(object, ...) {
     map(dplyr::summarize_all, mean) %>%
     dplyr::bind_rows()
 
-  centroids[n_clust, ] <- NA
+  outlier_idx <- which(unique(clusts) == "Outlier")
+  centroids[outlier_idx, ] <- rep(NA, ncol(centroids))
 
   sse_within_total_total <- map2_dbl(
     by_clust$data,

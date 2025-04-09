@@ -4,12 +4,19 @@ make_predictions <- function(x, prefix, n_clusters) {
 }
 
 make_predictions_w_outliers <- function(x, prefix, n_clusters) {
-  x <- ifelse(x == 0, n_clusters, x)
-  levels <- seq_len(n_clusters)
-  labels <- paste0(prefix, levels)
-  labels[n_clusters] <- "Outlier"
+
+  if (sum(x == 0) > 0) {
+    levels <- 0:(n_clusters-1)
+    labels <- paste0(prefix, levels)
+    labels[1] <- "Outlier"
+
+  } else {
+    levels <- 1:(n_clusters)
+    labels <- paste0(prefix, levels)
+  }
   factor(x, levels = levels, labels = labels)
 }
+
 
 .k_means_predict_stats <- function(object, new_data, prefix = "Cluster_") {
   res <- object$centers
