@@ -62,7 +62,7 @@ test_that("predictions", {
 
   expect_equal(
     relevel_preds(ref_clusts),
-    extract_cluster_assignment(db_clust_fit)$.cluster %>% .[. != "Outlier"] %>% as.numeric()
+    extract_cluster_assignment(db_clust_fit)$.cluster %>% .[. != "Outlier"] %>% as.numeric() - 1
   )
 
   expect_equal(

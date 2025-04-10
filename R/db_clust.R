@@ -204,6 +204,16 @@ dbscan_helper <- function(object,
   cp_clusters <- object$cluster[is_core]
   eps <- attr(object, "radius")
 
+  # if all points are core points then no border points / outliers to fit
+  if (sum(is_core) == nrow(training_data)) {
+    return(cp_clusters)
+  }
+
+  # if there are no core points, all points are considered outliers
+  if (sum(is_core) == 0) {
+    return(rep(0, nrow(training_data)))
+  }
+
   # get fit values according to closest core point
   non_cp_clusters <- dbscan:::.predict_frNN(newdata = non_cp, data = cp, cp_clusters, eps = eps)
 

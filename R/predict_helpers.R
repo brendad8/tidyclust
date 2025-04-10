@@ -4,16 +4,9 @@ make_predictions <- function(x, prefix, n_clusters) {
 }
 
 make_predictions_w_outliers <- function(x, prefix, n_clusters) {
-
-  if (sum(x == 0) > 0) {
-    levels <- 0:(n_clusters-1)
-    labels <- paste0(prefix, levels)
-    labels[1] <- "Outlier"
-
-  } else {
-    levels <- 1:(n_clusters)
-    labels <- paste0(prefix, levels)
-  }
+  levels <- 0:(n_clusters-1)
+  labels <- paste0(prefix, levels)
+  labels[1] <- "Outlier"
   factor(x, levels = levels, labels = labels)
 }
 
@@ -176,10 +169,16 @@ make_predictions_w_outliers <- function(x, prefix, n_clusters) {
   cp_clusters <- object$cluster[is_core]
   eps <- attr(object, "radius")
 
-  clusters <- dbscan:::.predict_frNN(newdata = new_data, data = cp, cp_clusters, eps = eps)
-  n_clusters <- length(unique(object$cluster))
+  if (sum(is_core) == 0) {
+    clusters <- (rep(0, nrow(new_data)))
+    n_clusters <- 1
+  } else {
+    clusters <- dbscan:::.predict_frNN(newdata = new_data, data = cp, cp_clusters, eps = eps)
+    n_clusters <- length(unique(object$cluster[object$cluster != 0])) + 1
+  }
 
   make_predictions_w_outliers(clusters, prefix, n_clusters)
+
 }
 
 .gm_clust_predict_mclust <- function(object, new_data, prefix = "Cluster_") {
