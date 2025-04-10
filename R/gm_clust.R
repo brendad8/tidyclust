@@ -38,9 +38,20 @@
 gm_clust <-
   function(mode = "partition",
            engine = "mclust",
-           num_clusters = NULL) {
+           num_clusters = NULL,
+           circular = FALSE,
+           zero_covariance = FALSE,
+           shared_orientation = FALSE,
+           shared_shape = FALSE,
+           shared_size = FALSE
+           ) {
     args <- list(
-      num_clusters = enquo(num_clusters)
+      num_clusters = enquo(num_clusters),
+      circular = enquo(circular),
+      zero_covariance = enquo(zero_covariance),
+      shared_orientation = enquo(shared_orientation),
+      shared_shape = enquo(shared_shape),
+      shared_size = enquo(shared_size)
     )
 
     new_cluster_spec(
@@ -74,6 +85,11 @@ print.gm_clust <- function(x, ...) {
 update.gm_clust <- function(object,
                             parameters = NULL,
                             num_clusters = NULL,
+                            circular = NULL,
+                            zero_covariance = NULL,
+                            shared_orientation = NULL,
+                            shared_shape = NULL,
+                            shared_size = NULL,
                             fresh = FALSE, ...) {
   eng_args <- parsnip::update_engine_parameters(
     object$eng_args,
@@ -84,7 +100,12 @@ update.gm_clust <- function(object,
     parameters <- parsnip::check_final_param(parameters)
   }
   args <- list(
-    num_clusters = enquo(num_clusters)
+    num_clusters = enquo(num_clusters),
+    circular = enquo(circular),
+    zero_covariance = enquo(zero_covariance),
+    shared_orientation = enquo(shared_orientation),
+    shared_shape = enquo(shared_shape),
+    shared_size = enquo(shared_size)
   )
 
   args <- parsnip::update_main_parameters(args, parameters)
@@ -125,6 +146,26 @@ check_args.gm_clust <- function(object) {
     rlang::abort("The number of clusters should be > 0.")
   }
 
+  if (all(!is.logical(args$circular))) {
+    rlang::abort("The circular cluster shape argument should be TRUE or FALSE.")
+  }
+
+  if (all(!is.logical(args$zero_covariance))) {
+    rlang::abort("The zero covariance argument should be TRUE or FALSE.")
+  }
+
+  if (all(!is.logical(args$shared_orientation))) {
+    rlang::abort("The shared cluster orientation argument should be TRUE or FALSE.")
+  }
+
+  if (all(!is.logical(args$shared_shape))) {
+    rlang::abort("The shared cluster shape argument should be TRUE or FALSE.")
+  }
+
+  if (all(!is.logical(args$shared_size))) {
+    rlang::abort("The shared cluster size argument should be TRUE or FALSE.")
+  }
+
   invisible(object)
 }
 
@@ -150,6 +191,11 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 #' @export
 .gm_clust_fit_mclust <- function(x,
                                  G = NULL,
+                                 circular = NULL,
+                                 zero_covariance = NULL,
+                                 shared_orientation = NULL,
+                                 shared_shape = NULL,
+                                 shared_size = NULL,
                                  ...) {
   if (is.null(G)) {
     rlang::abort(
@@ -157,9 +203,97 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
       call = call("fit")
     )
   }
+  if (is.null(circular)) {
+    rlang::abort(
+      "Please specify `circular` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+  if (is.null(shared_size)) {
+    rlang::abort(
+      "Please specify `shared_size` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+  if (!circular) {
 
-  res <- mclust::Mclust(x, G = G)
+    if (is.null(zero_covariance)) {
+      rlang::abort(
+        "Please specify `zero_covariance` to be able to fit specification.",
+        call = call("fit")
+      )
+    }
+
+    if (is.null(shared_shape)) {
+      rlang::abort(
+        "Please specify `shared_shape` to be able to fit specification.",
+        call = call("fit")
+      )
+    }
+
+    if (!zero_covariance) {
+
+      if (is.null(shared_orientation)) {
+        rlang::abort(
+          "Please specify `shared_orientation` to be able to fit specification.",
+          call = call("fit")
+        )
+      }
+    }
+  }
+
+  model_name <- mclust_helper(circular,
+                              zero_covariance,
+                              shared_orientation,
+                              shared_shape,
+                              shared_size)
+
+
+
+  res <- mclust::Mclust(x, G = G, modelNames = model_name)
   attr(res, "num_clusters") <- G
+  attr(res, "circular") <- circular
+  attr(res, "zero_covariance") <- zero_covariance
+  attr(res, "shared_orientation") <- shared_orientation
+  attr(res, "shared_shape") <- shared_shape
+  attr(res, "shared_size") <- shared_size
   attr(res, "training_data") <- x
   res
 }
+
+
+#' mclust fit helper function
+#'
+#' This function returns the mclust model name based on the specified
+#' TRUE/FALSE model arguments
+#'
+#' @param object gm_clust object
+#'
+#' @return string containing mclust model name
+#' @keywords internal
+mclust_helper <- function(circular,
+                          zero_covariance,
+                          shared_orientation,
+                          shared_shape,
+                          shared_size) {
+  model_name <- case_when(
+    circular & shared_size ~ "EII",
+    circular & !shared_size ~ "VII",
+    !circular & zero_covariance  & shared_shape & shared_size ~ "EEI",
+    !circular & zero_covariance  & !shared_shape & shared_size ~ "EVI",
+    !circular & zero_covariance  & shared_shape & !shared_size ~ "VEI",
+    !circular & zero_covariance  & !shared_shape & !shared_size ~ "VVI",
+    !circular & !zero_covariance & shared_orientation & shared_shape & shared_size ~ "EEE",
+    !circular & !zero_covariance & shared_orientation & !shared_shape & shared_size ~ "EVE",
+    !circular & !zero_covariance & shared_orientation & shared_shape & !shared_size ~ "VEE",
+    !circular & !zero_covariance & shared_orientation & !shared_shape & !shared_size ~ "VVE",
+    !circular & !zero_covariance & !shared_orientation & shared_shape & shared_size ~ "EEV",
+    !circular & !zero_covariance & !shared_orientation & shared_shape & !shared_size ~ "EVV",
+    !circular & !zero_covariance & !shared_orientation & !shared_shape & shared_size ~ "VEV",
+    !circular & !zero_covariance & !shared_orientation & !shared_shape & !shared_size ~ "VVV"
+
+
+  )
+
+}
+

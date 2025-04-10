@@ -27,11 +27,12 @@ make_gm_clust <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      protect = c("data"),
+      protect = c("x", "G", "circular", "shared_orientation", "shared_shape", "shared_size"),
       func = c(pkg = "tidyclust", fun = ".gm_clust_fit_mclust"),
       defaults = list()
     )
   )
+
 
   modelenv::set_encoding(
     model = "gm_clust",
@@ -54,6 +55,50 @@ make_gm_clust <- function() {
     has_submodel = TRUE
   )
 
+  modelenv::set_model_arg(
+    model = "gm_clust",
+    eng = "mclust",
+    exposed = "circular",
+    original = "circular",
+    func = list(pkg = "dials", fun = "circular"),
+    has_submodel = TRUE
+  )
+
+  modelenv::set_model_arg(
+    model = "gm_clust",
+    eng = "mclust",
+    exposed = "zero_covariance",
+    original = "zero_covariance",
+    func = list(pkg = "dials", fun = "zero_covariance"),
+    has_submodel = TRUE
+  )
+
+  modelenv::set_model_arg(
+    model = "gm_clust",
+    eng = "mclust",
+    exposed = "shared_orientation",
+    original = "shared_orientation",
+    func = list(pkg = "dials", fun = "shared_orientation"),
+    has_submodel = TRUE
+  )
+
+  modelenv::set_model_arg(
+    model = "gm_clust",
+    eng = "mclust",
+    exposed = "shared_shape",
+    original = "shared_shape",
+    func = list(pkg = "dials", fun = "shared_shape"),
+    has_submodel = TRUE
+  )
+
+  modelenv::set_model_arg(
+    model = "gm_clust",
+    eng = "mclust",
+    exposed = "shared_size",
+    original = "shared_size",
+    func = list(pkg = "dials", fun = "shared_size"),
+    has_submodel = TRUE
+  )
 
   modelenv::set_pred(
     model = "gm_clust",

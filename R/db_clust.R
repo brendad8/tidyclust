@@ -188,11 +188,12 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 
 #' dbscan fit helper function
 #'
-#' This function...
+#' This function returns the cluster assignments for the training data
+#' based on their distance to the CLOSEST core point in the data
 #'
-#' @param x matrix or data frame
+#' @param object db_clust object
 #'
-#' @return dbscan object
+#' @return numeric vector
 #' @keywords internal
 dbscan_helper <- function(object,
                           ...) {
