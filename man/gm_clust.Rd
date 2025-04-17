@@ -4,7 +4,16 @@
 \alias{gm_clust}
 \title{Gaussian Mixture Models (GMM)}
 \usage{
-gm_clust(mode = "partition", engine = "mclust", num_clusters = NULL)
+gm_clust(
+  mode = "partition",
+  engine = "mclust",
+  num_clusters = NULL,
+  circular = FALSE,
+  zero_covariance = FALSE,
+  shared_orientation = FALSE,
+  shared_shape = FALSE,
+  shared_size = FALSE
+)
 }
 \arguments{
 \item{mode}{A single character string for the type of model. The only

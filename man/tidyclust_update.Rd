@@ -18,7 +18,18 @@
   ...
 )
 
-\method{update}{gm_clust}(object, parameters = NULL, num_clusters = NULL, fresh = FALSE, ...)
+\method{update}{gm_clust}(
+  object,
+  parameters = NULL,
+  num_clusters = NULL,
+  circular = NULL,
+  zero_covariance = NULL,
+  shared_orientation = NULL,
+  shared_shape = NULL,
+  shared_size = NULL,
+  fresh = FALSE,
+  ...
+)
 
 \method{update}{hier_clust}(
   object,

@@ -107,3 +107,36 @@ dbscan_db_clust_engine_args <-
     component_id = "engine"
   )
 
+
+#' @export
+tunable.gm_clust <- function(x, ...) {
+  res <- NextMethod()
+  if (x$engine == "mclust") {
+    res <- add_engine_parameters(res, mclust_gm_clust_engine_args)
+  }
+  res
+}
+
+mclust_gm_clust_engine_args <-
+  tibble::tibble(
+    name = c(
+      "G",
+      "circular",
+      "zero_covariance",
+      "shared_orientation",
+      "shared_shape",
+      "shared_size"
+    ),
+    call_info = list(
+      list(pkg = "dials", fun = "num_clusters"),
+      list(pkg = "dials", fun = "circular"),
+      list(pkg = "dials", fun = "zero_covariance"),
+      list(pkg = "dials", fun = "shared_orientation"),
+      list(pkg = "dials", fun = "shared_shape"),
+      list(pkg = "dials", fun = "shared_size")
+    ),
+    source = "cluster_spec",
+    component = "mclust",
+    component_id = "engine"
+  )
+

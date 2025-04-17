@@ -126,35 +126,21 @@ test_that("updating", {
 })
 
 
-test_that("reordering is done correctly for stats k_means", {
+test_that("reordering is done correctly for dbscan db_clust", {
   set.seed(42)
 
-  kmeans_fit <- k_means(num_clusters = 6) %>%
-    set_engine("stats") %>%
+  dbscan_fit <- db_clust(radius = 20, min_points = 3) %>%
+    set_engine("dbscan") %>%
     fit(~., data = mtcars)
 
-  summ <- extract_fit_summary(kmeans_fit)
+  summ <- extract_fit_summary(dbscan_fit)
 
   expect_identical(
     summ$n_members,
     unname(as.integer(table(summ$cluster_assignments)))
   )
 })
-#
-# test_that("reordering is done correctly for ClusterR k_means", {
-#   set.seed(42)
-#
-#   kmeans_fit <- k_means(num_clusters = 6) %>%
-#     set_engine("ClusterR") %>%
-#     fit(~., data = mtcars)
-#
-#   summ <- extract_fit_summary(kmeans_fit)
-#
-#   expect_identical(
-#     summ$n_members,
-#     unname(as.integer(table(summ$cluster_assignments)))
-#   )
-# })
+
 
 test_that("errors if `radius` and `min_points` aren't specified", {
   expect_snapshot(

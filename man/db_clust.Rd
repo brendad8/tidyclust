@@ -18,9 +18,9 @@ possible value for this model is "partition".}
 \item{engine}{A single character string specifying what computational engine
 to use for fitting. The engine for this model is \code{"dbscan"}.}
 
-\item{radius}{Positive integer, Radius used to determine core-points and cluster points together (required).}
+\item{radius}{Positive double, Radius drawn around points to determine core-points and cluster assignments (required)}
 
-\item{min_points}{Positive double, Minimum number of points needed to form a cluster (required)}
+\item{min_points}{Positive integer, Minimum number of points required to form a core-point (required)}
 }
 \value{
 A \code{db_clust} cluster specification.

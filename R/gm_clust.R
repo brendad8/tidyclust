@@ -39,11 +39,11 @@ gm_clust <-
   function(mode = "partition",
            engine = "mclust",
            num_clusters = NULL,
-           circular = FALSE,
-           zero_covariance = FALSE,
-           shared_orientation = FALSE,
-           shared_shape = FALSE,
-           shared_size = FALSE
+           circular = TRUE,
+           shared_size = TRUE,
+           zero_covariance = TRUE,
+           shared_orientation = TRUE,
+           shared_shape = TRUE
            ) {
     args <- list(
       num_clusters = enquo(num_clusters),
@@ -251,12 +251,21 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 
 
   res <- mclust::Mclust(x, G = G, modelNames = model_name)
+
+  if (is.null(res)) {
+    rlang::abort(
+      "Model cannot be estimated. Please specify a model specification with less parameters by setting some model arguments to TRUE",
+      call = call("fit")
+    )
+  }
+
   attr(res, "num_clusters") <- G
   attr(res, "circular") <- circular
   attr(res, "zero_covariance") <- zero_covariance
   attr(res, "shared_orientation") <- shared_orientation
   attr(res, "shared_shape") <- shared_shape
   attr(res, "shared_size") <- shared_size
+  attr(res, "model_name") <- model_name
   attr(res, "training_data") <- x
   res
 }
@@ -276,7 +285,7 @@ mclust_helper <- function(circular,
                           shared_orientation,
                           shared_shape,
                           shared_size) {
-  model_name <- case_when(
+  model_name <- dplyr::case_when(
     circular & shared_size ~ "EII",
     circular & !shared_size ~ "VII",
     !circular & zero_covariance  & shared_shape & shared_size ~ "EEI",
@@ -288,12 +297,10 @@ mclust_helper <- function(circular,
     !circular & !zero_covariance & shared_orientation & shared_shape & !shared_size ~ "VEE",
     !circular & !zero_covariance & shared_orientation & !shared_shape & !shared_size ~ "VVE",
     !circular & !zero_covariance & !shared_orientation & shared_shape & shared_size ~ "EEV",
-    !circular & !zero_covariance & !shared_orientation & shared_shape & !shared_size ~ "EVV",
-    !circular & !zero_covariance & !shared_orientation & !shared_shape & shared_size ~ "VEV",
+    !circular & !zero_covariance & !shared_orientation & !shared_shape & shared_size ~ "EVV",
+    !circular & !zero_covariance & !shared_orientation & shared_shape & !shared_size ~ "VEV",
     !circular & !zero_covariance & !shared_orientation & !shared_shape & !shared_size ~ "VVV"
-
-
   )
-
+  model_name
 }
 

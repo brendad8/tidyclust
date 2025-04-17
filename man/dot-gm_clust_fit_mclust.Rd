@@ -4,7 +4,16 @@
 \alias{.gm_clust_fit_mclust}
 \title{Simple Wrapper around Mclust function}
 \usage{
-.gm_clust_fit_mclust(x, G = NULL, ...)
+.gm_clust_fit_mclust(
+  x,
+  G = NULL,
+  circular = NULL,
+  zero_covariance = NULL,
+  shared_orientation = NULL,
+  shared_shape = NULL,
+  shared_size = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{matrix or data frame}

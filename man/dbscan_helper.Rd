@@ -7,12 +7,13 @@
 dbscan_helper(object, ...)
 }
 \arguments{
-\item{x}{matrix or data frame}
+\item{object}{db_clust object}
 }
 \value{
-dbscan object
+numeric vector
 }
 \description{
-This function...
+This function returns the cluster assignments for the training data
+based on their distance to the CLOSEST core point in the data
 }
 \keyword{internal}
