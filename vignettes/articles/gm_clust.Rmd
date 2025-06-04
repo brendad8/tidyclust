@@ -29,6 +29,7 @@ Load Libraries:
 library(tidyclust)
 library(tidyverse)
 library(tidymodels)
+library(mclust)
 ```
 
 
@@ -53,16 +54,23 @@ penguins <- penguins %>%
 
 
 
-At the end of this vignette, you will find a brief overview of the GMM algorithm.
+At the end of this vignette, you will find a brief overview of the GMM algorithm and examples of each GMM model specification.
 
 
 
 ## `gm_clust` specification in {`tidyclust`}
 
-To specify a GMM model in `tidyclust`, simply set the value for `num_clusters`:
+To specify a GMM model in `tidyclust`, set the value for `num_clusters` and use the TRUE/FALSE parameters to select which model specification to use:
 
 ```{r}
-gm_clust_spec <- gm_clust(num_clusters = 3)
+gm_clust_spec <- gm_clust(
+  num_clusters = 3,
+  circular = FALSE,
+  zero_covariance = FALSE,
+  shared_orientation = TRUE,
+  shared_shape = FALSE,
+  shared_size = FALSE
+)
 
 gm_clust_spec
 ```
@@ -98,13 +106,6 @@ The cluster assignments for the training data can be accessed using the `extract
 gm_clust_fit %>% extract_cluster_assignment()
 ```
 
-**Should probably make some way to extract probabilities of belonging to each group**
-
-```{r}
-gm_clust_fit$fit$z %>% head()
-```
-
-
 
 If you have not yet read the `k_means` vignette, we recommend reading that first;
 functions that are used in this vignette are explained in more detail there.
@@ -132,17 +133,6 @@ new_penguin <- tibble(
 gm_clust_fit %>%
   predict(new_penguin)
 ```
-
-
-## A brief introduction to density-based clustering
-
-
-Gaussian Mixture Models (GMM) is a probabilistic unsupervised learning method that models data as a mixture of multiple Gaussian distributions. Unlike clustering methods such as k-means, GMM provides a soft clustering approach, where each observation has a probability of belonging to multiple clusters. This allows for more flexibility in capturing complex data distributions.
-
-In GMM, observations are assumed to be generated from a combination of Gaussian distributions, each with its own mean and covariance. The algorithm works by iteratively estimating the parameters of these distributions using the Expectation-Maximization (EM) algorithm. During the fitting process, observations are assigned to clusters based on their probability of belonging to each Gaussian component (**num_clusters**), making GMM effective for identifying overlapping or elliptical clusters in data.
-
-
-
 
 
 ```{r}
@@ -181,7 +171,51 @@ plot_state <- function(obj) {
     theme(legend.position = "none")
   
 }
+
+
+get_state <- function(params) {
+
+  list(mean1 = unname(params$mean[,1]),
+       mean2 = unname(params$mean[,2]),
+       mean3 = unname(params$mean[,3]),
+       sigma1 = unname(params$variance$sigma)[,,1],
+       sigma2 = unname(params$variance$sigma)[,,2],
+       sigma3 = unname(params$variance$sigma)[,,3])
+}
+
 ```
+
+
+
+| Model Name | Circular Clusters? | Zero Covariance? | Shared Orientation? | Shared Shape? | Shared Size? | Example |
+|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+| EII | TRUE | -- | -- | -- | TRUE | ![](gmm_models/eii.jpg) |
+| VII | TRUE | -- | -- | -- | FALSE | ![](gmm_models/vii.jpg) |
+| EEI | FALSE | TRUE | -- | TRUE | TRUE | ![](gmm_models/eei.jpg) |
+| EVI | FALSE | TRUE | -- | FALSE | TRUE | ![](gmm_models/evi.jpg) |
+| VEI | FALSE | TRUE | -- | TRUE | FALSE | ![](gmm_models/vei.jpg) |
+| VVI | FALSE | TRUE | -- | FALSE | FALSE | ![](gmm_models/vvi.jpg) |
+| EEE | FALSE | FALSE | TRUE | TRUE | TRUE | ![](gmm_models/eee.jpg) |
+| EVE | FALSE | FALSE | TRUE | FALSE | TRUE | ![](gmm_models/eve.jpg) |
+| VEE | FALSE | FALSE | TRUE | TRUE | FALSE | ![](gmm_models/vee.jpg) |
+| VVE | FALSE | FALSE | TRUE | FALSE | FALSE | ![](gmm_models/vve.jpg) |
+| EEV | FALSE | FALSE | FALSE | TRUE | TRUE | ![](gmm_models/eev.jpg) |
+| EVV | FALSE | FALSE | FALSE | FALSE | TRUE | ![](gmm_models/evv.jpg) |
+| VEV | FALSE | FALSE | FALSE | TRUE | FALSE | ![](gmm_models/vev.jpg) |
+| VVV | FALSE | FALSE | FALSE | FALSE | FALSE | ![](gmm_models/vvv.jpg) |
+
+: GMM Model Specifications with gm_clust()
+
+
+
+
+## A brief introduction to density-based clustering
+
+
+Gaussian Mixture Models (GMM) is a probabilistic unsupervised learning method that models data as a mixture of multiple Gaussian distributions. Unlike clustering methods such as k-means, GMM provides a soft clustering approach, where each observation has a probability of belonging to multiple clusters. This allows for more flexibility in capturing complex data distributions.
+
+In GMM, observations are assumed to be generated from a combination of Gaussian distributions, each with some mean vector and variance-covariance matrix. The algorithm works by iteratively estimating these parameters for each cluster using the Expectation-Maximization (EM) algorithm. After estimating these parameters observations are assigned to clusters based on their probability of belonging to each Gaussian component.
+
 
 
 ```{r}
@@ -229,15 +263,21 @@ param_conv <- list(
 #| echo: false
 plot_state(param_init)
 ```
+
+
 ```{r}
 #| echo: false
 plot_state(param_iter1)
 ```
 
+
+
 ```{r}
 #| echo: false
 plot_state(param_iter2)
 ```
+
+
 
 
 ```{r}
@@ -246,25 +286,9 @@ plot_state(param_conv)
 ```
 
 
-```{r}
-#| include: false
-penguins %>%
-  mutate(cluster = (gm_clust_fit %>% extract_cluster_assignment())$.cluster) %>%
-  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = cluster)) +
-  geom_point() +
-  stat_ellipse(level = .50, type = "norm", linetype = 1)  +
-  stat_ellipse(level = .75, type = "norm", linetype = 1)  +
-  stat_ellipse(level = .95, type = "norm", linetype = 1)  +
-  theme_minimal() +
-  scale_color_manual(values = c("#F8766D", "#00BA38", "#619CFF")) +
-  theme(legend.position = "none")
-```
 
 
 
-```{r}
-gmm_engine <- gm_clust_fit %>% extract_fit_engine()
 
-mclust::plot.Mclust(gmm_engine)
-```
+
 

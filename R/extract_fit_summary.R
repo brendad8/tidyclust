@@ -203,6 +203,10 @@ extract_fit_summary.dbscan <- function(object, ...) {
   outlier_idx <- which(unique(clusts) == "Outlier")
   centroids[outlier_idx, ] <- rep(NA, ncol(centroids))
 
+
+  # reorder centroids
+  centroids <- centroids[c(outlier_idx, setdiff(1:n_clust, outlier_idx)), ]
+
   sse_within_total_total <- map2_dbl(
     by_clust$data,
     seq_len(n_clust),
@@ -210,8 +214,9 @@ extract_fit_summary.dbscan <- function(object, ...) {
   )
 
 
+  clust_names <- unique(clusts)[c(outlier_idx, setdiff(1:n_clust, outlier_idx))]
   list(
-    cluster_names = unique(clusts),
+    cluster_names = clust_names,
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
     sse_within_total_total = sse_within_total_total,
@@ -242,11 +247,19 @@ extract_fit_summary.Mclust <- function(object, ...) {
     map(dplyr::summarize_all, mean) %>%
     dplyr::bind_rows()
 
+  sse_within_total_total <- map2_dbl(
+    by_clust$data,
+    seq_len(n_clust),
+    ~ sum(Rfast::dista(centroids[.y, ], .x))
+  )
+
 
   list(
     cluster_names = unique(clusts),
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
+    sse_within_total_total = sse_within_total_total,
+    sse_total = sum(Rfast::dista(t(overall_centroid), training_data)),
     orig_labels = NULL,
     cluster_assignments = clusts
   )

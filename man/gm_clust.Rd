@@ -8,11 +8,11 @@ gm_clust(
   mode = "partition",
   engine = "mclust",
   num_clusters = NULL,
-  circular = FALSE,
-  zero_covariance = FALSE,
-  shared_orientation = FALSE,
-  shared_shape = FALSE,
-  shared_size = FALSE
+  circular = TRUE,
+  shared_size = TRUE,
+  zero_covariance = TRUE,
+  shared_orientation = TRUE,
+  shared_shape = TRUE
 )
 }
 \arguments{
@@ -23,15 +23,25 @@ possible value for this model is "partition".}
 to use for fitting. The engine for this model is \code{"mclust"}.}
 
 \item{num_clusters}{Positive integer, number of clusters in model (required).}
+
+\item{circular}{Boolean, whether or not to fit circular MVG distributions for each cluster}
+
+\item{shared_size}{Boolean, whether each cluster MVG should have the same size/volume}
+
+\item{zero_covariance}{Boolean, whether or not to assign covariances of 0 for each MVG}
+
+\item{shared_orientation}{Boolean, whether each cluster MVG should have the same orientation}
+
+\item{shared_shape}{Boolean, whether each cluster MVG should have the same shape}
 }
 \value{
 A \code{gm_clust} cluster specification.
 }
 \description{
 \code{gm_clust} defines a model that fits clusters based on fitting a specified number of
-multivariate normal distributions to the data.
+multivariate Gaussian distributions (MVG) to the data.
 
-There are different ways to fit this model, and the method of estimation is
+There are multiple implementations for this model, and the implementation is
 chosen by setting the model engine. The engine-specific pages for this model
 are listed below.
 \itemize{

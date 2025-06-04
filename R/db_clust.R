@@ -3,9 +3,9 @@
 #' @description
 #'
 #' `db_clust` defines a model that fits clusters based on areas with observations
-#' that are densely packed together
+#' that are densely packed together using the DBSCAN algorithm
 #'
-#' There are different ways to fit this model, and the method of estimation is
+#' There are multiple implementations for this model, and the implementation is
 #' chosen by setting the model engine. The engine-specific pages for this model
 #' are listed below.
 #'
