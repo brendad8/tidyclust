@@ -183,7 +183,7 @@ make_predictions_w_outliers <- function(x, prefix, n_clusters) {
   }
   pred_clusts <- unique(clusters$.cluster)[pred_clusts_num]
 
-  pred_clust
+  pred_clusts
 }
 
 .db_clust_predict_dbscan <- function(object, new_data, prefix = "Cluster_") {
