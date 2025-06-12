@@ -3,8 +3,8 @@
     Code
       gm_clust(mode = "bogus")
     Condition
-      Error in `modelenv::check_spec_mode_engine_val()`:
-      ! 'bogus' is not a known mode for model `gm_clust()`.
+      Error in `gm_clust()`:
+      ! "bogus" is not a known mode for model `gm_clust()`.
 
 ---
 
