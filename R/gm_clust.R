@@ -151,6 +151,10 @@ check_args.gm_clust <- function(object) {
     rlang::abort("The number of clusters should be > 0.")
   }
 
+  if (length(args$num_clusters) > 1) {
+    rlang::abort("The number of clusters should be a single number.")
+  }
+
   if (all(!is.logical(args$circular))) {
     rlang::abort("The circular cluster shape argument should be TRUE or FALSE.")
   }
@@ -246,6 +250,27 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
       }
     }
   }
+
+  if (circular) {
+    if (!zero_covariance) {
+      warning("circular = TRUE so zero_covariance = FALSE has no effect on the fitted model specification")
+    }
+    if (!shared_orientation) {
+      warning("circular = TRUE so shared_orientation = FALSE has no effect on the fitted model specification")
+    }
+    if (!shared_shape) {
+      warning("circular = TRUE so shared_shape = FALSE has no effect on the fitted model specification")
+    }
+
+  } else {
+    if (zero_covariance) {
+      if (!shared_orientation) {
+        warning("zero_covariance = TRUE so shared_orientation = FALSE has no effect on the fitted model specification")
+      }
+    }
+  }
+
+
 
   model_name <- mclust_helper(circular,
                               zero_covariance,
