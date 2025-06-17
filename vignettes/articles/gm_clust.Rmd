@@ -135,6 +135,8 @@ gm_clust_fit %>%
 ```
 
 
+## Gaussian Mixture Model Specifications
+
 ```{r}
 #| include: false
 plot_state <- function(obj) {
