@@ -223,7 +223,13 @@ extract_fit_summary.dbscan <- function(object, ...) {
   sse_within_total_total <- map2_dbl(
     by_clust$data,
     seq_len(n_clust),
-    ~ sum(Rfast::dista(centroids[.y, ], .x))
+    ~sum(
+      philentropy::dist_many_many(
+        as.matrix(centroids[.y, ]),
+        as.matrix(.x),
+        method = "euclidean"
+      )
+    )
   )
 
 
@@ -233,7 +239,13 @@ extract_fit_summary.dbscan <- function(object, ...) {
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
     sse_within_total_total = sse_within_total_total,
-    sse_total = sum(Rfast::dista(t(overall_centroid), training_data)),
+    sse_total = sse_total = sum(
+      philentropy::dist_many_many(
+        t(overall_centroid),
+        as.matrix(training_data),
+        method = "euclidean"
+      )
+    ),
     orig_labels = NULL,
     cluster_assignments = clusts
   )
@@ -263,16 +275,27 @@ extract_fit_summary.Mclust <- function(object, ...) {
   sse_within_total_total <- map2_dbl(
     by_clust$data,
     seq_len(n_clust),
-    ~ sum(Rfast::dista(centroids[.y, ], .x))
+    ~sum(
+      philentropy::dist_many_many(
+        as.matrix(centroids[.y, ]),
+        as.matrix(.x),
+        method = "euclidean"
+      )
+    )
   )
-
 
   list(
     cluster_names = unique(clusts),
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
     sse_within_total_total = sse_within_total_total,
-    sse_total = sum(Rfast::dista(t(overall_centroid), training_data)),
+    sse_total =     sse_total = sum(
+      philentropy::dist_many_many(
+        t(overall_centroid),
+        as.matrix(training_data),
+        method = "euclidean"
+      )
+    ),
     orig_labels = NULL,
     cluster_assignments = clusts
   )
