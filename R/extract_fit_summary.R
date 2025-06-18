@@ -214,11 +214,7 @@ extract_fit_summary.dbscan <- function(object, ...) {
     dplyr::bind_rows()
 
   outlier_idx <- which(unique(clusts) == "Outlier")
-  centroids[outlier_idx, ] <- rep(NA, ncol(centroids))
 
-
-  # reorder centroids
-  centroids <- centroids[c(outlier_idx, setdiff(1:n_clust, outlier_idx)), ]
 
   sse_within_total_total <- map2_dbl(
     by_clust$data,
@@ -234,7 +230,7 @@ extract_fit_summary.dbscan <- function(object, ...) {
 
 
   clust_names <- unique(clusts)[c(outlier_idx, setdiff(1:n_clust, outlier_idx))]
-  list(
+  summary <- list(
     cluster_names = clust_names,
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
@@ -249,6 +245,14 @@ extract_fit_summary.dbscan <- function(object, ...) {
     orig_labels = NULL,
     cluster_assignments = clusts
   )
+
+  summary$centroids[outlier_idx, ] <- rep(NA, ncol(summary$centroids))
+  summary$sse_within_total_total[outlier_idx] <- NA
+
+  # reorder centroids
+  summary$centroids <- summary$centroids[c(outlier_idx, setdiff(1:n_clust, outlier_idx)), ]
+
+  summary
 }
 
 #' @export
