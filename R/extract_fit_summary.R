@@ -239,7 +239,7 @@ extract_fit_summary.dbscan <- function(object, ...) {
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
     sse_within_total_total = sse_within_total_total,
-    sse_total = sse_total = sum(
+    sse_total = sum(
       philentropy::dist_many_many(
         t(overall_centroid),
         as.matrix(training_data),
@@ -289,7 +289,7 @@ extract_fit_summary.Mclust <- function(object, ...) {
     centroids = centroids,
     n_members = unname(as.integer(table(clusts))),
     sse_within_total_total = sse_within_total_total,
-    sse_total =     sse_total = sum(
+    sse_total = sum(
       philentropy::dist_many_many(
         t(overall_centroid),
         as.matrix(training_data),
