@@ -1,4 +1,5 @@
 test_that("primary arguments", {
+
   basic <- db_clust(mode = "partition")
   basic_dbscan <- translate_tidyclust(basic %>% set_engine("dbscan"))
   expect_equal(
@@ -27,6 +28,9 @@ test_that("primary arguments", {
 
 test_that("bad input", {
   expect_snapshot(error = TRUE, db_clust(mode = "bogus"))
+
+  skip_if_not_installed("dbscan")
+
   expect_snapshot(error = TRUE, {
     bt <- db_clust(radius = -1) %>% set_engine("dbscan")
     fit(bt, mpg ~ ., mtcars)
@@ -40,6 +44,7 @@ test_that("bad input", {
 })
 
 test_that("predictions", {
+  skip_if_not_installed("dbscan")
   set.seed(1234)
   db_clust_fit <- db_clust(radius = 60, min_points = 5) %>%
     set_engine("dbscan") %>%
@@ -73,6 +78,7 @@ test_that("predictions", {
 
 
 test_that("extract_centroids work", {
+  skip_if_not_installed("dbscan")
   set.seed(1234)
   dbscan_fit <- db_clust(radius = 20, min_points = 3) %>%
     set_engine("dbscan") %>%
@@ -127,6 +133,7 @@ test_that("updating", {
 
 
 test_that("reordering is done correctly for dbscan db_clust", {
+  skip_if_not_installed("dbscan")
   set.seed(42)
 
   dbscan_fit <- db_clust(radius = 20, min_points = 3) %>%
@@ -143,6 +150,7 @@ test_that("reordering is done correctly for dbscan db_clust", {
 
 
 test_that("errors if `radius` and `min_points` aren't specified", {
+  skip_if_not_installed("dbscan")
   expect_snapshot(
     error = TRUE,
     db_clust() %>%
@@ -152,6 +160,7 @@ test_that("errors if `radius` and `min_points` aren't specified", {
 })
 
 test_that("errors if `radius` isn't specified", {
+  skip_if_not_installed("dbscan")
   expect_snapshot(
     error = TRUE,
     db_clust(min_points = 10) %>%
@@ -161,6 +170,7 @@ test_that("errors if `radius` isn't specified", {
 })
 
 test_that("errors if `min_points` isn't specified", {
+  skip_if_not_installed("dbscan")
   expect_snapshot(
     error = TRUE,
     db_clust(radius = 20) %>%
