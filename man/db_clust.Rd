@@ -13,7 +13,7 @@ db_clust(
 }
 \arguments{
 \item{mode}{A single character string for the type of model. The only
-possible value for this model is "partition".}
+possible value for this model is \code{"partition"}.}
 
 \item{engine}{A single character string specifying what computational engine
 to use for fitting. The engine for this model is \code{"dbscan"}.}

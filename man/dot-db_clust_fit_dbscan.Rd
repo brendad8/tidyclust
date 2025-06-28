@@ -4,7 +4,7 @@
 \alias{.db_clust_fit_dbscan}
 \title{Simple Wrapper around dbscan function}
 \usage{
-.db_clust_fit_dbscan(x, eps = NULL, minPts = NULL, ...)
+.db_clust_fit_dbscan(x, radius = NULL, min_points = NULL, ...)
 }
 \arguments{
 \item{x}{matrix or data frame}
@@ -18,7 +18,7 @@ dbscan object
 }
 \description{
 This wrapper prepares the data into a distance matrix to send to
-\code{dbscan::dbscan} and retains the parameters \code{radius} or \code{min_points} as an
+\code{dbscan::dbscan()} and retains the parameters \code{radius} or \code{min_points} as an
 attribute.
 }
 \keyword{internal}
