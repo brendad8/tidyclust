@@ -6,8 +6,8 @@ test_that("primary arguments", {
     basic_dbscan$method$fit$args,
     list(
       x = rlang::expr(missing_arg()),
-      eps = rlang::expr(missing_arg()),
-      minPts = rlang::expr(missing_arg())
+      radius = rlang::expr(missing_arg()),
+      min_points = rlang::expr(missing_arg())
     )
   )
 
@@ -17,10 +17,10 @@ test_that("primary arguments", {
     db_dbscan$method$fit$args,
     list(
       x = rlang::expr(missing_arg()),
-      eps = rlang::expr(missing_arg()),
-      minPts = rlang::expr(missing_arg()),
-      eps = new_empty_quosure(2),
-      minPts = new_empty_quosure(4)
+      radius = rlang::expr(missing_arg()),
+      min_points = rlang::expr(missing_arg()),
+      radius = new_empty_quosure(2),
+      min_points = new_empty_quosure(4)
     )
   )
 })

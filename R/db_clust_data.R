@@ -27,7 +27,7 @@ make_db_clust <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      protect = c("x", "eps", "minPts"),
+      protect = c("x", "radius", "min_points"),
       func = c(pkg = "tidyclust", fun = ".db_clust_fit_dbscan"),
       defaults = list()
     )
@@ -49,7 +49,7 @@ make_db_clust <- function() {
     model = "db_clust",
     eng = "dbscan",
     exposed = "radius",
-    original = "eps",
+    original = "radius",
     func = list(pkg = "dials", fun = "radius"),
     has_submodel = TRUE
   )
@@ -58,7 +58,7 @@ make_db_clust <- function() {
     model = "db_clust",
     eng = "dbscan",
     exposed = "min_points",
-    original = "minPts",
+    original = "min_points",
     func = list(pkg = "dials", fun = "min_points"),
     has_submodel = TRUE
   )
