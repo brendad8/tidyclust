@@ -12,7 +12,7 @@
 #' - \link[=details_db_clust_dbscan]{dbscan}
 #'
 #' @param mode A single character string for the type of model. The only
-#'   possible value for this model is "partition".
+#'   possible value for this model is `"partition"`.
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"dbscan"`.
 #' @param radius Positive double, Radius drawn around points to determine core-points and cluster assignments (required)
@@ -127,11 +127,11 @@ check_args.db_clust <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
   if (all(is.numeric(args$min_points)) && any(args$min_points < 0)) {
-    rlang::abort("The number of points in a cluster should be > 0.")
+    cli::cli_abort("The number of points in a cluster should be > 0.")
   }
 
   if (all(is.numeric(args$radius)) && any(args$radius < 0)) {
-    rlang::abort("The radius used to create a cluster should be > 0.")
+    cli::cli_abort("The radius used to create a cluster should be > 0.")
   }
 
   invisible(object)
@@ -148,7 +148,7 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 #' Simple Wrapper around dbscan function
 #'
 #' This wrapper prepares the data into a distance matrix to send to
-#' `dbscan::dbscan` and retains the parameters `radius` or `min_points` as an
+#' `dbscan::dbscan()` and retains the parameters `radius` or `min_points` as an
 #' attribute.
 #'
 #' @param x matrix or data frame
@@ -163,14 +163,14 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
                                  minPts = NULL,
                                  ...) {
   if (is.null(eps)) {
-    rlang::abort(
+    cli::cli_abort(
       "Please specify `radius` to be able to fit specification.",
       call = call("fit")
     )
   }
 
   if (is.null(minPts)) {
-    rlang::abort(
+    cli::cli_abort(
       "Please specify `min_points` to be able to fit specification.",
       call = call("fit")
     )
@@ -228,7 +228,7 @@ dbscan_helper <- function(object,
   non_cp_clusters$is_core <- "non cp"
   cp_clusters$is_core <- "cp"
 
-  training_data$id <- ave(training_data$is_core, training_data$is_core, FUN = seq_along)
+  training_data$id <- stats::ave(training_data$is_core, training_data$is_core, FUN = seq_along)
   non_cp_clusters$id <- 1:nrow(non_cp_clusters)
   cp_clusters$id <- 1:nrow(cp_clusters)
 

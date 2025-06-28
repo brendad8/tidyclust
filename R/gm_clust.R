@@ -148,31 +148,31 @@ check_args.gm_clust <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
   if (all(is.numeric(args$num_clusters)) && any(args$num_clusters <= 0)) {
-    rlang::abort("The number of clusters should be > 0.")
+    cli::cli_abort("The number of clusters should be > 0.")
   }
 
   if (length(args$num_clusters) > 1) {
-    rlang::abort("The number of clusters should be a single number.")
+    cli::cli_abort("The number of clusters should be a single number.")
   }
 
   if (all(!is.logical(args$circular))) {
-    rlang::abort("The circular cluster shape argument should be TRUE or FALSE.")
+    cli::cli_abort("The circular cluster shape argument should be TRUE or FALSE.")
   }
 
   if (all(!is.logical(args$zero_covariance))) {
-    rlang::abort("The zero covariance argument should be TRUE or FALSE.")
+    cli::cli_abort("The zero covariance argument should be TRUE or FALSE.")
   }
 
   if (all(!is.logical(args$shared_orientation))) {
-    rlang::abort("The shared cluster orientation argument should be TRUE or FALSE.")
+    cli::cli_abort("The shared cluster orientation argument should be TRUE or FALSE.")
   }
 
   if (all(!is.logical(args$shared_shape))) {
-    rlang::abort("The shared cluster shape argument should be TRUE or FALSE.")
+    cli::cli_abort("The shared cluster shape argument should be TRUE or FALSE.")
   }
 
   if (all(!is.logical(args$shared_size))) {
-    rlang::abort("The shared cluster size argument should be TRUE or FALSE.")
+    cli::cli_abort("The shared cluster size argument should be TRUE or FALSE.")
   }
 
   invisible(object)
@@ -207,19 +207,19 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
                                  shared_size = NULL,
                                  ...) {
   if (is.null(G)) {
-    rlang::abort(
+    cli::cli_abort(
       "Please specify `num_clusters` to be able to fit specification.",
       call = call("fit")
     )
   }
   if (is.null(circular)) {
-    rlang::abort(
+    cli::cli_abort(
       "Please specify `circular` to be able to fit specification.",
       call = call("fit")
     )
   }
   if (is.null(shared_size)) {
-    rlang::abort(
+    cli::cli_abort(
       "Please specify `shared_size` to be able to fit specification.",
       call = call("fit")
     )
@@ -227,14 +227,14 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
   if (!circular) {
 
     if (is.null(zero_covariance)) {
-      rlang::abort(
+      cli::cli_abort(
         "Please specify `zero_covariance` to be able to fit specification.",
         call = call("fit")
       )
     }
 
     if (is.null(shared_shape)) {
-      rlang::abort(
+      cli::cli_abort(
         "Please specify `shared_shape` to be able to fit specification.",
         call = call("fit")
       )
@@ -243,7 +243,7 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
     if (!zero_covariance) {
 
       if (is.null(shared_orientation)) {
-        rlang::abort(
+        cli::cli_abort(
           "Please specify `shared_orientation` to be able to fit specification.",
           call = call("fit")
         )
@@ -283,7 +283,7 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
   res <- mclust::Mclust(x, G = G, modelNames = model_name)
 
   if (is.null(res)) {
-    rlang::abort(
+    cli::cli_abort(
       "Model cannot be estimated. Please specify a model specification with less parameters by setting some model arguments to TRUE",
       call = call("fit")
     )
