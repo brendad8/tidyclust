@@ -27,7 +27,7 @@ make_gm_clust <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      protect = c("x", "G", "circular", "zero_covariance", "shared_orientation", "shared_shape", "shared_size"),
+      protect = c("x", "num_clusters", "circular", "zero_covariance", "shared_orientation", "shared_shape", "shared_size"),
       func = c(pkg = "tidyclust", fun = ".gm_clust_fit_mclust"),
       defaults = list()
     )
@@ -50,7 +50,7 @@ make_gm_clust <- function() {
     model = "gm_clust",
     eng = "mclust",
     exposed = "num_clusters",
-    original = "G",
+    original = "num_clusters",
     func = list(pkg = "dials", fun = "num_clusters"),
     has_submodel = TRUE
   )

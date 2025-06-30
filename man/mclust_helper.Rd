@@ -13,7 +13,15 @@ mclust_helper(
 )
 }
 \arguments{
-\item{object}{gm_clust object}
+\item{circular}{Whether or not to fit circular MVG distributions for each cluster}
+
+\item{zero_covariance}{Whether or not to assign covariances of 0 for each MVG}
+
+\item{shared_orientation}{Whether each cluster MVG should have the same orientation}
+
+\item{shared_shape}{Whether each cluster MVG should have the same shape}
+
+\item{shared_size}{Whether each cluster MVG should have the same size/volume}
 }
 \value{
 string containing mclust model name

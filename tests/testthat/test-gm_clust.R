@@ -6,7 +6,7 @@ test_that("primary arguments", {
     list(
       x = rlang::expr(missing_arg()),
 
-      G= rlang::expr(missing_arg()),
+      num_clusters = rlang::expr(missing_arg()),
       circular = rlang::expr(missing_arg()),
       zero_covariance = rlang::expr(missing_arg()),
       shared_orientation = rlang::expr(missing_arg()),
@@ -32,7 +32,7 @@ test_that("engine arguments", {
     list(
       x = rlang::expr(missing_arg()),
 
-      G = rlang::expr(missing_arg()),
+      num_clusters = rlang::expr(missing_arg()),
       circular = rlang::expr(missing_arg()),
       zero_covariance = rlang::expr(missing_arg()),
       shared_orientation = rlang::expr(missing_arg()),

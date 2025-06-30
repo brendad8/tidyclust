@@ -194,19 +194,24 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 #'
 #' @param x matrix or data frame
 #' @param num_clusters Number of clusters
+#' @param circular Whether or not to fit circular MVG distributions for each cluster
+#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG
+#' @param shared_orientation Whether each cluster MVG should have the same orientation
+#' @param shared_shape Whether each cluster MVG should have the same shape
+#' @param shared_size Whether each cluster MVG should have the same size/volume
 #'
 #' @return mclust object
 #' @keywords internal
 #' @export
 .gm_clust_fit_mclust <- function(x,
-                                 G = NULL,
+                                 num_clusters = NULL,
                                  circular = NULL,
                                  zero_covariance = NULL,
                                  shared_orientation = NULL,
                                  shared_shape = NULL,
                                  shared_size = NULL,
                                  ...) {
-  if (is.null(G)) {
+  if (is.null(num_clusters)) {
     cli::cli_abort(
       "Please specify `num_clusters` to be able to fit specification.",
       call = call("fit")
@@ -280,7 +285,7 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 
 
 
-  res <- mclust::Mclust(x, G = G, modelNames = model_name)
+  res <- mclust::Mclust(x, G = num_clusters, modelNames = model_name)
 
   if (is.null(res)) {
     cli::cli_abort(
@@ -289,7 +294,7 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
     )
   }
 
-  attr(res, "num_clusters") <- G
+  attr(res, "num_clusters") <- num_clusters
   attr(res, "circular") <- circular
   attr(res, "zero_covariance") <- zero_covariance
   attr(res, "shared_orientation") <- shared_orientation
@@ -306,7 +311,11 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 #' This function returns the mclust model name based on the specified
 #' TRUE/FALSE model arguments
 #'
-#' @param object gm_clust object
+#' @param circular Whether or not to fit circular MVG distributions for each cluster
+#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG
+#' @param shared_orientation Whether each cluster MVG should have the same orientation
+#' @param shared_shape Whether each cluster MVG should have the same shape
+#' @param shared_size Whether each cluster MVG should have the same size/volume
 #'
 #' @return string containing mclust model name
 #' @keywords internal
