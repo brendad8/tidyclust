@@ -224,13 +224,13 @@ penguins_new$cluster <- (db_clust_fit %>% extract_cluster_assignment())$.cluster
 # factor(dbscan_fit$cluster)
 penguins_new$cp2 <- factor(if_else(as.numeric(is.corepoint(penguins_std, eps = eps, minPts = min_points)) == 1 & penguins_new$cluster == "Cluster_2", "Yes", "No"), levels = c("Yes", "No"))
 
-penguins_new$radius <- if_else(penguins_new$cp == "Yes", eps, 0)
+penguins_new$radius <- if_else(penguins_new$cp2 == "Yes", eps, 0)
 
-penguins_new_sub <- penguins_new %>% filter(cp == "Yes") %>%
+penguins_new_sub <- penguins_new %>% filter(cp2 == "Yes") %>%
   .[c(2,3,4,5,7,9,16),]
 
 penguins_new %>%
-  ggplot(aes(x = bill_length_std, y = bill_depth_std, color = cp)) +
+  ggplot(aes(x = bill_length_std, y = bill_depth_std, color = cp2)) +
   geom_point() +
   theme_minimal() +
   geom_circle(mapping = aes(x0 = bill_length_std, y0 = bill_depth_std, r = radius), color = "gray", linewidth = 0.8, data = penguins_new_sub) +
