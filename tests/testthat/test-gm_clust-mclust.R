@@ -1,4 +1,7 @@
 test_that("fitting", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   spec <- gm_clust(num_clusters = 3) %>%
     set_engine("mclust")
@@ -13,6 +16,9 @@ test_that("fitting", {
 })
 
 test_that("predicting", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   spec <- gm_clust(num_clusters = 3) %>%
     set_engine("mclust")
@@ -28,6 +34,9 @@ test_that("predicting", {
 })
 
 test_that("all levels are preserved with 1 row predictions", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   spec <- gm_clust(num_clusters = 3) %>%
     set_engine("mclust")
@@ -43,6 +52,9 @@ test_that("all levels are preserved with 1 row predictions", {
 })
 
 test_that("extract_centroids() works", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   spec <- gm_clust(num_clusters = 3) %>%
     set_engine("mclust")

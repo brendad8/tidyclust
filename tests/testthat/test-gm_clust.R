@@ -53,6 +53,9 @@ test_that("bad input", {
     error = TRUE,
     gm_clust(mode = "bogus")
   )
+
+  skip_if_not_installed("mclust")
+
   expect_snapshot(
     error = TRUE,
     {
@@ -106,6 +109,9 @@ test_that("bad input", {
 })
 
 test_that("predictions", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
 
   mclust_fit <- gm_clust(num_clusters = 4) %>%
@@ -135,6 +141,9 @@ test_that("predictions", {
 
 
 test_that("extract_centroids work", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   mclust_fit <- gm_clust(num_clusters = 4) %>%
     set_engine("mclust") %>%
@@ -157,6 +166,9 @@ test_that("extract_centroids work", {
 
 
 test_that("predictions with new data", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(1234)
   mclust_fit <- gm_clust(num_clusters = 4) %>%
     set_engine("mclust") %>%
@@ -202,6 +214,9 @@ test_that("updating", {
 })
 
 test_that("reordering is done correctly for gm_clust", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(42)
 
   gm_fit <- gm_clust(num_clusters = 6) %>%
@@ -217,6 +232,9 @@ test_that("reordering is done correctly for gm_clust", {
 })
 
 test_that("model errors when parameters cannot be estimated", {
+
+  skip_if_not_installed("mclust")
+
   set.seed(42)
 
   expect_error(
@@ -289,6 +307,9 @@ test_that("mappings to different model names are correct", {
 
 
   test_that("mappings to different model names are correct", {
+
+    skip_if_not_installed("mclust")
+
     set.seed(42)
 
     iris_sub <- iris %>% dplyr::select(Sepal.Length, Sepal.Width)
