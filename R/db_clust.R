@@ -216,7 +216,15 @@ dbscan_helper <- function(object,
   }
 
   # get fit values according to closest core point
-  non_cp_clusters <- dbscan:::.predict_frNN(newdata = non_cp, data = cp, cp_clusters, eps = eps)
+  nn <- dbscan::frNN(cp,
+             query = non_cp,
+             eps = eps,
+             sort = TRUE)
+
+  non_cp_clusters <- vapply(
+    nn$id, function(nns) if (length(nns) == 0L) 0L else cp_clusters[nns[1L]], integer(1L)
+  )
+
 
   # join back separated fits into proper order in training data
   non_cp_clusters <- data.frame(non_cp_clusters)

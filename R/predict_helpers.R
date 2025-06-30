@@ -198,7 +198,15 @@ make_predictions_w_outliers <- function(x, prefix, n_clusters) {
     clusters <- (rep(0, nrow(new_data)))
     n_clusters <- 1
   } else {
-    clusters <- dbscan:::.predict_frNN(newdata = new_data, data = cp, cp_clusters, eps = eps)
+    nn <- dbscan::frNN(cp,
+               query = new_data,
+               eps = eps,
+               sort = TRUE)
+
+    clusters <- vapply(
+      nn$id, function(nns) if (length(nns) == 0L) 0L else cp_clusters[nns[1L]], integer(1L)
+    )
+
     n_clusters <- length(unique(object$cluster[object$cluster != 0])) + 1
   }
 
