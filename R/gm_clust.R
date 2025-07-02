@@ -16,11 +16,11 @@
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"mclust"`.
 #' @param num_clusters Positive integer, number of clusters in model (required).
-#' @param circular Boolean, whether or not to fit circular MVG distributions for each cluster
-#' @param zero_covariance Boolean, whether or not to assign covariances of 0 for each MVG
-#' @param shared_orientation Boolean, whether each cluster MVG should have the same orientation
-#' @param shared_shape Boolean, whether each cluster MVG should have the same shape
-#' @param shared_size Boolean, whether each cluster MVG should have the same size/volume
+#' @param circular Boolean, whether or not to fit circular MVG distributions for each cluster. Default `TRUE`.
+#' @param zero_covariance Boolean, whether or not to assign covariances of 0 for each MVG. Default `TRUE`.
+#' @param shared_orientation Boolean, whether each cluster MVG should have the same orientation. Default `TRUE`.
+#' @param shared_shape Boolean, whether each cluster MVG should have the same shape. Default `TRUE`.
+#' @param shared_size Boolean, whether each cluster MVG should have the same size/volume. Default `TRUE`.
 #'
 #' @details
 #'
@@ -190,13 +190,13 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 #' `mclust::Mclust` and retains the parameters `num_clusters` as an
 #' attribute.
 #'
-#' @param x matrix or data frame
-#' @param num_clusters Number of clusters
-#' @param circular Whether or not to fit circular MVG distributions for each cluster
-#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG
-#' @param shared_orientation Whether each cluster MVG should have the same orientation
-#' @param shared_shape Whether each cluster MVG should have the same shape
-#' @param shared_size Whether each cluster MVG should have the same size/volume
+#' @param x matrix or data frame.
+#' @param num_clusters Number of clusters.
+#' @param circular Whether or not to fit circular MVG distributions for each cluster.
+#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG.
+#' @param shared_orientation Whether each cluster MVG should have the same orientation.
+#' @param shared_shape Whether each cluster MVG should have the same shape.
+#' @param shared_size Whether each cluster MVG should have the same size/volume.
 #'
 #' @return mclust object
 #' @keywords internal
@@ -307,13 +307,13 @@ translate_tidyclust.gm_clust <- function(x, engine = x$engine, ...) {
 #' mclust fit helper function
 #'
 #' This function returns the mclust model name based on the specified
-#' TRUE/FALSE model arguments
+#' TRUE/FALSE model arguments.
 #'
-#' @param circular Whether or not to fit circular MVG distributions for each cluster
-#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG
-#' @param shared_orientation Whether each cluster MVG should have the same orientation
-#' @param shared_shape Whether each cluster MVG should have the same shape
-#' @param shared_size Whether each cluster MVG should have the same size/volume
+#' @param circular Whether or not to fit circular MVG distributions for each cluster.
+#' @param zero_covariance Whether or not to assign covariances of 0 for each MVG.
+#' @param shared_orientation Whether each cluster MVG should have the same orientation.
+#' @param shared_shape Whether each cluster MVG should have the same shape.
+#' @param shared_size Whether each cluster MVG should have the same size/volume.
 #'
 #' @return string containing mclust model name
 #' @keywords internal

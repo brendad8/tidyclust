@@ -7,11 +7,11 @@
 .db_clust_fit_dbscan(x, radius = NULL, min_points = NULL, ...)
 }
 \arguments{
-\item{x}{matrix or data frame}
+\item{x}{matrix or data frame.}
 
-\item{radius}{Radius used to determine core-points and cluster points together}
+\item{radius}{Radius used to determine core-points and cluster points together.}
 
-\item{min_points}{Minimum number of points needed to form a cluster}
+\item{min_points}{Minimum number of points needed to form a cluster.}
 }
 \value{
 dbscan object

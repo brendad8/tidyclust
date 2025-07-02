@@ -24,15 +24,15 @@ to use for fitting. The engine for this model is \code{"mclust"}.}
 
 \item{num_clusters}{Positive integer, number of clusters in model (required).}
 
-\item{circular}{Boolean, whether or not to fit circular MVG distributions for each cluster}
+\item{circular}{Boolean, whether or not to fit circular MVG distributions for each cluster. Default \code{TRUE}.}
 
-\item{shared_size}{Boolean, whether each cluster MVG should have the same size/volume}
+\item{shared_size}{Boolean, whether each cluster MVG should have the same size/volume. Default \code{TRUE}.}
 
-\item{zero_covariance}{Boolean, whether or not to assign covariances of 0 for each MVG}
+\item{zero_covariance}{Boolean, whether or not to assign covariances of 0 for each MVG. Default \code{TRUE}.}
 
-\item{shared_orientation}{Boolean, whether each cluster MVG should have the same orientation}
+\item{shared_orientation}{Boolean, whether each cluster MVG should have the same orientation. Default \code{TRUE}.}
 
-\item{shared_shape}{Boolean, whether each cluster MVG should have the same shape}
+\item{shared_shape}{Boolean, whether each cluster MVG should have the same shape. Default \code{TRUE}.}
 }
 \value{
 A \code{gm_clust} cluster specification.

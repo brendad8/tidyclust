@@ -14,6 +14,6 @@ numeric vector
 }
 \description{
 This function returns the cluster assignments for the training data
-based on their distance to the CLOSEST core point in the data
+based on their distance to the CLOSEST core point in the data.
 }
 \keyword{internal}

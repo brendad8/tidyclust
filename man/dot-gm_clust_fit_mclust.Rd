@@ -16,19 +16,19 @@
 )
 }
 \arguments{
-\item{x}{matrix or data frame}
+\item{x}{matrix or data frame.}
 
-\item{num_clusters}{Number of clusters}
+\item{num_clusters}{Number of clusters.}
 
-\item{circular}{Whether or not to fit circular MVG distributions for each cluster}
+\item{circular}{Whether or not to fit circular MVG distributions for each cluster.}
 
-\item{zero_covariance}{Whether or not to assign covariances of 0 for each MVG}
+\item{zero_covariance}{Whether or not to assign covariances of 0 for each MVG.}
 
-\item{shared_orientation}{Whether each cluster MVG should have the same orientation}
+\item{shared_orientation}{Whether each cluster MVG should have the same orientation.}
 
-\item{shared_shape}{Whether each cluster MVG should have the same shape}
+\item{shared_shape}{Whether each cluster MVG should have the same shape.}
 
-\item{shared_size}{Whether each cluster MVG should have the same size/volume}
+\item{shared_size}{Whether each cluster MVG should have the same size/volume.}
 }
 \value{
 mclust object

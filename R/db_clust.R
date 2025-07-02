@@ -15,8 +15,8 @@
 #'   possible value for this model is `"partition"`.
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"dbscan"`.
-#' @param radius Positive double, Radius drawn around points to determine core-points and cluster assignments (required)
-#' @param min_points Positive integer, Minimum number of points required to form a core-point (required)
+#' @param radius Positive double, Radius drawn around points to determine core-points and cluster assignments (required).
+#' @param min_points Positive integer, Minimum number of points required to form a core-point (required).
 #'
 #'
 #' @details
@@ -151,9 +151,9 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 #' `dbscan::dbscan()` and retains the parameters `radius` or `min_points` as an
 #' attribute.
 #'
-#' @param x matrix or data frame
-#' @param radius Radius used to determine core-points and cluster points together
-#' @param min_points Minimum number of points needed to form a cluster
+#' @param x matrix or data frame.
+#' @param radius Radius used to determine core-points and cluster points together.
+#' @param min_points Minimum number of points needed to form a cluster.
 #'
 #' @return dbscan object
 #' @keywords internal
@@ -189,7 +189,7 @@ translate_tidyclust.db_clust <- function(x, engine = x$engine, ...) {
 #' dbscan fit helper function
 #'
 #' This function returns the cluster assignments for the training data
-#' based on their distance to the CLOSEST core point in the data
+#' based on their distance to the CLOSEST core point in the data.
 #'
 #' @param object db_clust object
 #'
