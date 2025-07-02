@@ -22,8 +22,6 @@
 #' @param shared_shape Boolean, whether each cluster MVG should have the same shape
 #' @param shared_size Boolean, whether each cluster MVG should have the same size/volume
 #'
-#' @importFrom mclust mclustBIC
-#'
 #' @details
 #'
 #' ## What does it mean to predict?
