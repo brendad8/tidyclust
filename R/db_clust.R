@@ -16,7 +16,7 @@
 #' @param engine A single character string specifying what computational engine
 #'   to use for fitting. The engine for this model is `"dbscan"`.
 #' @param radius Positive double, Radius drawn around points to determine core-points and cluster assignments (required).
-#' @param min_points Positive integer, Minimum number of points required to form a core-point (required).
+#' @param min_points Positive integer, Minimum number of connected points required to form a core-point, including the point itself (required).
 #'
 #'
 #' @details
